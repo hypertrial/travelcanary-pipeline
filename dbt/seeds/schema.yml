@@ -1,0 +1,89 @@
+version: 2
+
+seeds:
+  - name: iso_countries
+    columns:
+      - name: iso2
+        tests: [unique, not_null]
+      - name: iso3
+        tests: [unique, not_null]
+  - name: source_contracts
+    columns:
+      - name: source
+        tests: [unique, not_null]
+      - name: role
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [required]
+      - name: minimum_rows
+        tests: [not_null]
+      - name: warn_drop_ratio
+        tests: [not_null]
+      - name: reject_drop_ratio
+        tests: [not_null]
+      - name: warn_after_hours
+        tests: [not_null]
+      - name: error_after_hours
+        tests: [not_null]
+      - name: minimum_canonical_ratio
+        tests: [not_null]
+      - name: warn_canonical_ratio
+        tests: [not_null]
+      - name: minimum_normalization_ratio
+        tests: [not_null]
+  - name: advisory_normalization_exceptions
+    description: Explicit native values that remain visible but intentionally unnormalized.
+    columns:
+      - name: source
+        tests: [not_null]
+      - name: native_value
+        tests: [not_null]
+  - name: country_code_crosswalk
+    columns:
+      - name: source
+        tests: [not_null]
+      - name: destination_native_id
+        tests: [not_null]
+  - name: advisory_level_normalization
+    columns:
+      - name: source
+        tests: [not_null]
+      - name: native_value
+        tests: [not_null]
+      - name: normalized_ordinal
+        tests: [not_null]
+  - name: fips10_4_to_iso3
+    columns:
+      - name: fips10_4
+        tests: [unique, not_null]
+      - name: iso3
+        tests: [not_null]
+  - name: advisory_theme_keywords
+    columns:
+      - name: theme
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - terrorism
+                  - health
+                  - crime
+                  - conflict
+                  - natural_disasters
+      - name: keyword
+        tests: [not_null]
+  - name: gdelt_event_root_codes
+    columns:
+      - name: event_root_code
+        tests: [unique, not_null]
+      - name: event_root_label
+        tests: [not_null]
+  - name: insight_thresholds
+    columns:
+      - name: threshold_name
+        tests: [unique, not_null]
+      - name: threshold_value
+        tests: [not_null]

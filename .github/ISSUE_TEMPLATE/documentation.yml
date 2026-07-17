@@ -1,0 +1,28 @@
+name: Documentation issue
+description: Report stale, missing, or unclear documentation.
+title: "docs: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, `.env`, source payloads, DuckDB contents, or sensitive live diagnostics.
+  - type: input
+    id: page
+    attributes:
+      label: Page or section
+    validations: {required: true}
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is missing, stale, or confusing?
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes:
+      label: Suggested fix
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Audience
+      options: [Analyst, Local operator, Contributor, Maintainer]

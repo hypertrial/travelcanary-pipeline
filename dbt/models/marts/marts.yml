@@ -1,0 +1,423 @@
+version: 2
+
+models:
+  - name: country_travel_risk
+    description: Current accepted country advisory per official issuer and UTC snapshot date.
+    columns:
+      - &destination_iso2
+        name: destination_iso2
+        description: Canonical ISO-3166-1 alpha-2 destination code; null only when the country cannot be resolved.
+      - &destination_iso3
+        name: destination_iso3
+        description: Canonical ISO-3166-1 alpha-3 destination code used as the public country key.
+        tests: [not_null]
+        config:
+          meta: {format: ISO-3166-1 alpha-3}
+      - &destination_name
+        name: destination_name
+        description: Canonical English country name from the committed ISO country seed.
+      - &issuing_government
+        name: issuing_government
+        description: Stable source identifier for the government that issued the advisory.
+        tests: [not_null]
+      - &snapshot_date
+        name: snapshot_date
+        description: UTC date on which dbt materialized the accepted advisory snapshot.
+        tests: [not_null]
+      - &native_level
+        name: native_level
+        description: Provider-native advisory level value; null when the issuer publishes no level.
+      - &native_level_label
+        name: native_level_label
+        description: Provider-native human-readable advisory label; null when absent upstream.
+      - &normalized_ordinal
+        name: normalized_ordinal
+        description: Best-effort 1-4 comparison ordinal; null for missing or unmapped native values.
+        tests:
+          - accepted_values:
+              arguments: {values: [1, 2, 3, 4]}
+              config: {where: "normalized_ordinal is not null"}
+      - &normalized_level_label
+        name: normalized_level_label
+        description: Label associated with the best-effort normalized ordinal; null when normalization is unavailable.
+      - &normalization_status
+        name: normalization_status
+        description: Whether the native value was normalized, unmapped, or absent.
+      - &summary_text
+        name: summary_text
+        description: Advisory summary text preserved from the issuer; null when unavailable.
+      - &source_url
+        name: source_url
+        description: Official source page for inspecting the native advisory meaning.
+      - &source_published_at
+        name: source_published_at
+        description: Safely parsed provider publication timestamp; null when absent or invalid.
+      - &source_ingested_at
+        name: source_ingested_at
+        description: UTC timestamp when TravelCanary fetched the accepted source row.
+
+  - name: country_travel_risk_history
+    description: Indefinite corrected daily snapshots of accepted official advisories.
+    columns:
+      - <<: *destination_iso2
+      - <<: *destination_iso3
+      - <<: *destination_name
+      - <<: *issuing_government
+      - <<: *snapshot_date
+      - <<: *native_level
+      - <<: *native_level_label
+      - <<: *normalized_ordinal
+      - <<: *normalized_level_label
+      - <<: *normalization_status
+      - <<: *summary_text
+      - <<: *source_url
+      - <<: *source_published_at
+      - <<: *source_ingested_at
+      - name: snapshot_recorded_at
+        description: UTC timestamp when dbt recorded or corrected this daily history row.
+
+  - name: country_risk_signals
+    description: Transparent current official and GDELT country signals without a combined score.
+    columns:
+      - <<: *destination_iso2
+      - <<: *destination_iso3
+        tests: [not_null, unique]
+      - <<: *destination_name
+      - <<: *snapshot_date
+      - &reporting_issuer_count
+        name: reporting_issuer_count
+        description: Number of accepted official issuer rows contributing to the country snapshot.
+      - &normalized_ordinal_min
+        name: normalized_ordinal_min
+        description: Lowest non-null best-effort normalized ordinal reported by an official issuer.
+      - &normalized_ordinal_median
+        name: normalized_ordinal_median
+        description: Median of non-null best-effort official ordinals; may be fractional and is not a score.
+      - &normalized_ordinal_max
+        name: normalized_ordinal_max
+        description: Highest non-null best-effort normalized ordinal reported by an official issuer.
+      - &normalized_ordinal_range
+        name: normalized_ordinal_range
+        description: Maximum minus minimum official normalized ordinal; null when no ordinal is available.
+      - &latest_official_ingested_at
+        name: latest_official_ingested_at
+        description: Latest source ingestion timestamp among official rows in the snapshot.
+      - &gdelt_event_count_1d
+        name: gdelt_event_count_1d
+        description: Accepted GDELT event count for the latest retained country event date.
+      - &gdelt_material_conflict_events_1d
+        name: gdelt_material_conflict_events_1d
+        description: Latest-day GDELT events whose CAMEO quad class indicates material conflict.
+      - name: gdelt_avg_goldstein_scale_1d
+        description: Latest-day mean GDELT Goldstein scale; null when no mapped events exist.
+      - name: gdelt_avg_tone_1d
+        description: Latest-day mean GDELT event tone; null when no mapped events exist.
+      - &gdelt_event_count_7d
+        name: gdelt_event_count_7d
+        description: GDELT country event count across the latest seven-day calendar window.
+      - &gdelt_material_conflict_events_7d
+        name: gdelt_material_conflict_events_7d
+        description: Material-conflict GDELT event count across the latest seven-day window.
+      - &gdelt_material_conflict_share_7d
+        name: gdelt_material_conflict_share_7d
+        description: Seven-day material-conflict event count divided by all GDELT events; null when the denominator is zero.
+      - name: gdelt_avg_goldstein_scale_7d
+        description: Event-weighted mean GDELT Goldstein scale across the latest seven-day window.
+      - name: gdelt_avg_tone_7d
+        description: Event-weighted mean GDELT tone across the latest seven-day window.
+      - &gdelt_latest_event_date
+        name: gdelt_latest_event_date
+        description: Latest accepted mapped GDELT event date for the country.
+      - &gdelt_material_conflict_share_1d
+        name: gdelt_material_conflict_share_1d
+        description: Latest-day material-conflict event count divided by all events; null when the denominator is zero.
+      - &gdelt_is_fresh
+        name: gdelt_is_fresh
+        description: True when the latest mapped GDELT event date is within three calendar days.
+
+  - name: country_risk_overview
+    description: Current analyst-ready country overview assembled from transparent public signals.
+    columns:
+      - <<: *destination_iso2
+        tests: [not_null]
+      - <<: *destination_iso3
+        tests: [not_null, unique]
+      - <<: *destination_name
+        tests: [not_null]
+      - <<: *snapshot_date
+      - <<: *reporting_issuer_count
+      - name: reporting_issuers
+        description: Sorted, deduplicated comma-separated official source identifiers contributing to the snapshot.
+        tests: [not_null]
+      - <<: *normalized_ordinal_min
+      - <<: *normalized_ordinal_median
+      - <<: *normalized_ordinal_max
+      - <<: *normalized_ordinal_range
+      - <<: *latest_official_ingested_at
+      - &risk_direction
+        name: risk_direction
+        description: Direction of median official ordinal movement versus the previous snapshot.
+      - &disagreement_direction
+        name: disagreement_direction
+        description: Direction of official normalized-range movement versus the previous snapshot.
+      - &has_high_disagreement
+        name: has_high_disagreement
+        description: True when the official normalized range meets the configured high-disagreement threshold.
+      - name: changed_issuer_count
+        description: Official issuer rows whose normalized ordinal differs from the preceding snapshot.
+      - name: worsening_issuer_count
+        description: Official issuers whose normalized ordinal increased from the preceding snapshot.
+      - name: improving_issuer_count
+        description: Official issuers whose normalized ordinal decreased from the preceding snapshot.
+      - name: matched_theme_count
+        description: Number of distinct configured advisory themes matched across current issuer text.
+      - name: matched_themes
+        description: Sorted, deduplicated comma-separated matched themes; null when none match.
+      - name: context_alert_count
+        description: Number of current explainable official-versus-GDELT divergence alerts.
+      - name: context_alert_types
+        description: Sorted, deduplicated comma-separated divergence alert types; null when none exist.
+      - name: has_warning_context_alert
+        description: True when at least one current context alert has warning severity.
+      - <<: *gdelt_event_count_1d
+      - <<: *gdelt_material_conflict_events_1d
+      - <<: *gdelt_material_conflict_share_1d
+      - <<: *gdelt_event_count_7d
+      - <<: *gdelt_material_conflict_events_7d
+      - <<: *gdelt_material_conflict_share_7d
+      - <<: *gdelt_latest_event_date
+      - <<: *gdelt_is_fresh
+      - name: required_source_count
+        description: Number of required source contracts, comprising five official issuers plus GDELT.
+      - name: usable_required_source_count
+        description: Required sources whose latest health status is healthy or warning.
+      - name: all_required_sources_usable
+        description: True when every required source is currently usable; this describes data health, not destination safety.
+      - name: gdelt_source_usable
+        description: Current source-level GDELT usability from the source quality mart.
+
+  - name: country_advisory_changes
+    description: Daily advisory-level movement per country and official issuer.
+    columns:
+      - <<: *destination_iso2
+      - <<: *destination_iso3
+      - <<: *destination_name
+      - <<: *issuing_government
+      - <<: *snapshot_date
+      - <<: *native_level
+      - <<: *native_level_label
+      - <<: *normalized_ordinal
+      - <<: *normalized_level_label
+      - name: previous_snapshot_date
+        description: Preceding available UTC snapshot date for the same country and issuer.
+      - name: previous_normalized_ordinal
+        description: Best-effort normalized ordinal from the preceding issuer snapshot.
+      - name: normalized_ordinal_delta
+        description: Current minus previous normalized ordinal; null when either value is absent.
+      - &advisory_direction
+        name: advisory_direction
+        description: Issuer movement classified as new, worsening, improving, unchanged, or unknown.
+        tests:
+          - accepted_values:
+              arguments: {values: [new, worsening, improving, unchanged, unknown]}
+      - name: is_changed
+        description: True only when current and previous non-null normalized ordinals differ.
+      - <<: *source_url
+      - <<: *source_published_at
+      - <<: *source_ingested_at
+
+  - name: country_risk_trends
+    description: Daily country-level official advisory trend and issuer disagreement signals.
+    columns:
+      - <<: *destination_iso2
+      - <<: *destination_iso3
+      - <<: *destination_name
+      - <<: *snapshot_date
+      - <<: *reporting_issuer_count
+      - <<: *normalized_ordinal_min
+      - <<: *normalized_ordinal_median
+      - <<: *normalized_ordinal_max
+      - <<: *normalized_ordinal_range
+      - name: previous_snapshot_date
+        description: Preceding available UTC country snapshot date.
+      - name: previous_normalized_ordinal_median
+        description: Median best-effort official ordinal from the preceding country snapshot.
+      - name: normalized_ordinal_median_delta
+        description: Current minus previous official median normalized ordinal.
+      - <<: *risk_direction
+        tests:
+          - accepted_values:
+              arguments: {values: [new, worsening, improving, unchanged, unknown]}
+      - name: previous_normalized_ordinal_range
+        description: Official normalized ordinal range from the preceding country snapshot.
+      - name: normalized_ordinal_range_delta
+        description: Current minus previous official normalized ordinal range.
+      - <<: *disagreement_direction
+        tests:
+          - accepted_values:
+              arguments: {values: [new, increasing, decreasing, unchanged, unknown]}
+      - <<: *has_high_disagreement
+      - <<: *latest_official_ingested_at
+
+  - name: country_advisory_themes
+    description: Auditable keyword themes found in accepted advisory text.
+    columns:
+      - <<: *destination_iso2
+      - <<: *destination_iso3
+      - <<: *destination_name
+      - <<: *issuing_government
+      - <<: *snapshot_date
+      - name: theme
+        description: Configured theme matched in issuer advisory text; this is keyword matching, not NLP classification.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [terrorism, health, crime, conflict, natural_disasters]
+      - name: matched_keyword_count
+        description: Number of configured keyword matches for the issuer, country, date, and theme.
+      - name: matched_terms
+        description: Comma-separated configured keywords matched in the advisory text.
+
+  - name: country_gdelt_event_types
+    description: Daily accepted GDELT country activity by CAMEO root event type.
+    columns:
+      - name: event_date
+        description: UTC GDELT event date from the daily Events export.
+        tests: [not_null]
+      - <<: *destination_iso3
+      - name: event_root_code
+        description: Two-digit CAMEO root event code.
+        tests: [not_null]
+      - name: event_root_label
+        description: Human-readable label for the CAMEO root event code.
+      - name: event_count
+        description: Accepted mapped GDELT event rows for the country, date, and root code.
+      - name: mention_count
+        description: Sum of GDELT NumMentions for the grouped events.
+      - name: material_conflict_events
+        description: Grouped events whose CAMEO quad class indicates material conflict.
+      - name: material_conflict_share
+        description: Material-conflict events divided by all grouped events.
+      - name: avg_goldstein_scale
+        description: Mean GDELT Goldstein scale for the grouped events.
+      - name: avg_tone
+        description: Mean GDELT tone for the grouped events.
+
+  - name: country_context_alerts
+    description: Explainable official-advisory versus fresh GDELT-context divergence flags.
+    columns:
+      - <<: *destination_iso2
+      - <<: *destination_iso3
+      - <<: *destination_name
+      - <<: *snapshot_date
+      - name: alert_type
+        description: Configured official-versus-GDELT divergence condition that matched.
+        tests:
+          - accepted_values:
+              arguments:
+                values: [official_low_gdelt_high, official_high_gdelt_quiet]
+      - name: severity
+        description: Explainability severity of info or warning; it is not a travel recommendation.
+        tests:
+          - accepted_values:
+              arguments: {values: [info, warning]}
+      - name: official_median_ordinal
+        description: Median best-effort official ordinal used to evaluate the alert.
+      - name: official_max_ordinal
+        description: Maximum best-effort official ordinal used to contextualize the alert.
+      - name: official_disagreement_range
+        description: Official normalized ordinal range used to contextualize issuer disagreement.
+      - <<: *gdelt_latest_event_date
+      - <<: *gdelt_event_count_7d
+      - <<: *gdelt_material_conflict_events_7d
+      - <<: *gdelt_material_conflict_share_7d
+      - name: gdelt_mention_count_7d
+        description: Sum of GDELT NumMentions across the latest seven-day window.
+      - name: reason
+        description: Human-readable statement of the transparent threshold condition that matched.
+
+  - name: source_data_quality
+    description: Consumer-facing source health, freshness, volume, coverage, and normalization summary.
+    columns:
+      - name: source
+        description: Stable source identifier from the authoritative source contract seed.
+        tests: [unique, not_null]
+      - name: role
+        description: Required source role; version 0.3.0 has no optional source contracts.
+      - name: health_status
+        description: Overall latest health classification after status, freshness, volume, and coverage checks.
+        tests:
+          - accepted_values:
+              arguments:
+                values: [healthy, warning, stale, rejected, unavailable, error]
+      - name: latest_status
+        description: Recorded outcome of the latest source attempt.
+      - name: latest_finished_at
+        description: UTC completion timestamp of the latest source attempt.
+      - name: hours_since_latest_run
+        description: Whole hours since the latest attempt; null before any run exists.
+      - name: fetched_rows
+        description: Rows fetched by the latest source attempt.
+      - name: previous_accepted_rows
+        description: Row count from the preceding accepted source run; null on first acceptance.
+      - name: relative_ratio
+        description: Latest fetched row count divided by the previous accepted count.
+      - name: canonical_ratio
+        description: Share of fetched rows resolving to canonical ISO countries.
+      - name: normalization_ratio
+        description: Share of applicable native advisory values covered by the normalization mapping.
+      - name: message
+        description: Concise rejection, error, or availability detail; null when no message was recorded.
+      - name: is_healthy
+        description: True only when the overall source health status is healthy.
+      - name: is_usable
+        description: True when health is healthy or warning and the source remains usable for analysis.
+      - name: freshness_status
+        description: Fresh, warning, stale, or unavailable classification from contract time windows.
+      - name: volume_status
+        description: Healthy, warning, rejected, or unknown classification for relative row volume.
+      - name: canonical_status
+        description: Healthy, warning, rejected, or unknown classification for country resolution coverage.
+      - name: normalization_status
+        description: Healthy, rejected, or not-applicable classification for normalization coverage.
+
+unit_tests:
+  - name: test_country_risk_overview_rollups_and_defaults
+    model: country_risk_overview
+    given:
+      - input: ref('country_risk_signals')
+        rows:
+          - {destination_iso2: TH, destination_iso3: THA, destination_name: Thailand, snapshot_date: '2026-07-13', reporting_issuer_count: 2, normalized_ordinal_min: 1, normalized_ordinal_median: 2.5, normalized_ordinal_max: 4, normalized_ordinal_range: 3, latest_official_ingested_at: '2026-07-13 08:00:00', gdelt_event_count_1d: 6, gdelt_material_conflict_events_1d: 5, gdelt_material_conflict_share_1d: 0.833333, gdelt_event_count_7d: 7, gdelt_material_conflict_events_7d: 6, gdelt_material_conflict_share_7d: 0.857143, gdelt_latest_event_date: '2026-07-12', gdelt_is_fresh: true}
+          - {destination_iso2: CH, destination_iso3: CHE, destination_name: Switzerland, snapshot_date: '2026-07-13', reporting_issuer_count: 1, normalized_ordinal_min: null, normalized_ordinal_median: null, normalized_ordinal_max: null, normalized_ordinal_range: null, latest_official_ingested_at: '2026-07-13 08:00:00', gdelt_event_count_1d: null, gdelt_material_conflict_events_1d: null, gdelt_material_conflict_share_1d: null, gdelt_event_count_7d: null, gdelt_material_conflict_events_7d: null, gdelt_material_conflict_share_7d: null, gdelt_latest_event_date: null, gdelt_is_fresh: false}
+      - input: ref('country_travel_risk')
+        rows:
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', issuing_government: us_state}
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', issuing_government: ca_gac}
+          - {destination_iso3: CHE, snapshot_date: '2026-07-13', issuing_government: us_state}
+      - input: ref('country_risk_trends')
+        rows:
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', risk_direction: worsening, disagreement_direction: increasing, has_high_disagreement: true}
+          - {destination_iso3: CHE, snapshot_date: '2026-07-13', risk_direction: new, disagreement_direction: new, has_high_disagreement: false}
+      - input: ref('country_advisory_changes')
+        rows:
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', is_changed: true, advisory_direction: worsening}
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', is_changed: true, advisory_direction: improving}
+      - input: ref('country_advisory_themes')
+        rows:
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', theme: terrorism}
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', theme: crime}
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', theme: crime}
+      - input: ref('country_context_alerts')
+        rows:
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', alert_type: official_low_gdelt_high, severity: warning}
+          - {destination_iso3: THA, snapshot_date: '2026-07-13', alert_type: official_high_gdelt_quiet, severity: info}
+      - input: ref('source_data_quality')
+        rows:
+          - {source: us_state, role: required, is_usable: true}
+          - {source: gdelt, role: required, is_usable: false}
+    expect:
+      format: dict
+      rows:
+        - {destination_iso3: CHE, reporting_issuers: us_state, changed_issuer_count: 0, worsening_issuer_count: 0, improving_issuer_count: 0, matched_theme_count: 0, matched_themes: null, context_alert_count: 0, context_alert_types: null, has_warning_context_alert: false, gdelt_event_count_1d: null, gdelt_material_conflict_events_1d: null, gdelt_material_conflict_share_1d: null, gdelt_event_count_7d: null, gdelt_material_conflict_events_7d: null, gdelt_material_conflict_share_7d: null, gdelt_latest_event_date: null, gdelt_is_fresh: false, required_source_count: 2, usable_required_source_count: 1, all_required_sources_usable: false, gdelt_source_usable: false}
+        - {destination_iso3: THA, reporting_issuers: 'ca_gac, us_state', changed_issuer_count: 2, worsening_issuer_count: 1, improving_issuer_count: 1, matched_theme_count: 2, matched_themes: 'crime, terrorism', context_alert_count: 2, context_alert_types: 'official_high_gdelt_quiet, official_low_gdelt_high', has_warning_context_alert: true, gdelt_event_count_1d: 6, gdelt_material_conflict_events_1d: 5, gdelt_material_conflict_share_1d: 0.833333, gdelt_event_count_7d: 7, gdelt_material_conflict_events_7d: 6, gdelt_material_conflict_share_7d: 0.857143, gdelt_latest_event_date: '2026-07-12', gdelt_is_fresh: true, required_source_count: 2, usable_required_source_count: 1, all_required_sources_usable: false, gdelt_source_usable: false}

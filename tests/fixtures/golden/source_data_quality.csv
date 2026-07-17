@@ -1,0 +1,7 @@
+source,role,health_status,latest_status,latest_finished_at,hours_since_latest_run,fetched_rows,previous_accepted_rows,relative_ratio,canonical_ratio,normalization_ratio,message,is_healthy,is_usable,freshness_status,volume_status,canonical_status,normalization_status
+ca_gac,required,healthy,accepted,<TIMESTAMP>,<DYNAMIC>,2,<NULL>,<NULL>,1.0,1.0,<NULL>,true,true,fresh,unknown,healthy,healthy
+gdelt,required,healthy,accepted,<TIMESTAMP>,<DYNAMIC>,1,<NULL>,<NULL>,1.0,1.0,<NULL>,true,true,fresh,unknown,healthy,not_applicable
+jp_mofa,required,healthy,accepted,<TIMESTAMP>,<DYNAMIC>,2,<NULL>,<NULL>,1.0,1.0,<NULL>,true,true,fresh,unknown,healthy,healthy
+nl_mfa,required,healthy,accepted,<TIMESTAMP>,<DYNAMIC>,1,<NULL>,<NULL>,1.0,1.0,<NULL>,true,true,fresh,unknown,healthy,healthy
+uk_fcdo,required,healthy,accepted,<TIMESTAMP>,<DYNAMIC>,1,<NULL>,<NULL>,1.0,1.0,<NULL>,true,true,fresh,unknown,healthy,healthy
+us_state,required,healthy,accepted,<TIMESTAMP>,<DYNAMIC>,2,<NULL>,<NULL>,1.0,1.0,<NULL>,true,true,fresh,unknown,healthy,healthy

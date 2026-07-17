@@ -1,0 +1,7 @@
+source,role,minimum_rows,warn_drop_ratio,reject_drop_ratio,warn_after_hours,error_after_hours,minimum_canonical_ratio,warn_canonical_ratio,minimum_normalization_ratio
+us_state,required,170,0.90,0.80,36,72,0.98,0.99,0.99
+ca_gac,required,184,0.90,0.80,36,72,0.98,0.99,0.99
+uk_fcdo,required,180,0.90,0.80,36,72,0.98,0.99,0.99
+nl_mfa,required,180,0.90,0.80,36,72,0.98,0.99,0.99
+jp_mofa,required,164,0.90,0.80,36,72,0.98,0.99,0.99
+gdelt,required,90169,0.90,0.80,36,72,0.95,0.98,0.00

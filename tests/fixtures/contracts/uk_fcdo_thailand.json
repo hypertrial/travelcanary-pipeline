@@ -1,0 +1,10 @@
+{
+  "base_path": "/foreign-travel-advice/thailand",
+  "title": "Thailand travel advice",
+  "description": "Latest information for travellers to Thailand.",
+  "public_updated_at": "2026-06-13T08:45:00Z",
+  "details": {
+    "alert_status": ["avoid_all_travel_to_parts"],
+    "country": {"name": "Thailand", "slug": "thailand"}
+  }
+}

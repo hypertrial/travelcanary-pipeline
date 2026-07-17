@@ -1,0 +1,8 @@
+travelcanary:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', 'travelcanary.duckdb') }}"
+      schema: dbt
+      threads: 4

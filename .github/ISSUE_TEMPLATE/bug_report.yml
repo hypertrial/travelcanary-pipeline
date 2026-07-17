@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a reproducible TravelCanary problem.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, `.env`, source payloads, DuckDB contents, or sensitive live diagnostics.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations: {required: true}
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Provide the smallest commands and inputs that reproduce the issue.
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations: {required: true}
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs
+      description: Remove secrets and source payloads.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit

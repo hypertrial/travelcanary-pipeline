@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: int_advisory_level_normalized
+    columns:
+      - name: advisory_id
+        tests: [unique, not_null]
+      - name: issuing_government
+        tests: [not_null]
+  - name: int_gdelt_country_daily
+    columns:
+      - name: event_date
+        tests: [not_null]
+      - name: destination_iso3
+        tests: [not_null]
+  - name: int_gdelt_country_rolling_7d
+    columns:
+      - name: event_date
+        tests: [not_null]
+      - name: destination_iso3
+        tests: [not_null]
+  - name: int_gdelt_country_event_types_daily
+    columns:
+      - name: event_date
+        tests: [not_null]
+      - name: destination_iso3
+        tests: [not_null]
+      - name: event_root_code
+        tests: [not_null]
+  - name: int_advisory_theme_matches
+    columns:
+      - name: destination_iso3
+        tests: [not_null]
+      - name: issuing_government
+        tests: [not_null]
+      - name: theme
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - terrorism
+                  - health
+                  - crime
+                  - conflict
+                  - natural_disasters
+  - name: int_country_risk_trend_baseline
+    columns:
+      - name: destination_iso3
+        tests: [not_null]
+      - name: snapshot_date
+        tests: [not_null]
+
+unit_tests:
+  - name: test_advisory_normalization_resolution_and_statuses
+    model: int_advisory_level_normalized
+    given:
+      - input: ref('stg_all_advisories')
+        rows:
+          - {source_run_id: r1, advisory_id: mapped, source: us_state, destination_native_id: TH, destination_iso2: TH, destination_iso3: null, destination_name: Thailand, native_level: '4', native_level_label: Do not travel, summary_text: null, source_url: https://example.test/mapped, published_at: '2026-07-12 10:00:00', ingested_at: '2026-07-12 11:00:00'}
+          - {source_run_id: r1, advisory_id: unmapped, source: us_state, destination_native_id: TH, destination_iso2: TH, destination_iso3: null, destination_name: Thailand, native_level: '9', native_level_label: Unknown, summary_text: null, source_url: https://example.test/unmapped, published_at: null, ingested_at: '2026-07-12 11:00:00'}
+          - {source_run_id: r1, advisory_id: missing, source: us_state, destination_native_id: TH, destination_iso2: TH, destination_iso3: null, destination_name: Thailand, native_level: null, native_level_label: null, summary_text: null, source_url: https://example.test/missing, published_at: null, ingested_at: '2026-07-12 11:00:00'}
+      - input: ref('country_code_crosswalk')
+        rows:
+          - {source: other, destination_native_id: unused, destination_iso3: USA}
+      - input: ref('iso_countries')
+        rows:
+          - {country_name: Thailand, iso2: TH, iso3: THA}
+      - input: ref('advisory_level_normalization')
+        rows:
+          - {source: us_state, native_value: '4', normalized_ordinal: 4, normalized_label: Do not travel}
+    expect:
+      format: dict
+      rows:
+        - {advisory_id: mapped, destination_iso3: THA, normalized_ordinal: 4, normalization_status: normalized}
+        - {advisory_id: unmapped, destination_iso3: THA, normalized_ordinal: null, normalization_status: unmapped}
+        - {advisory_id: missing, destination_iso3: THA, normalized_ordinal: null, normalization_status: no_native_level}
+
+  - name: test_country_risk_trend_baseline_directions
+    model: int_country_risk_trend_baseline
+    given:
+      - input: ref('insight_thresholds')
+        rows:
+          - {threshold_name: significant_median_delta_min, threshold_value: '1'}
+      - input: ref('country_travel_risk_history')
+        rows:
+          - {destination_iso2: TH, destination_iso3: THA, destination_name: Thailand, snapshot_date: '2026-07-11', normalized_ordinal: 1, source_ingested_at: '2026-07-11 12:00:00'}
+          - {destination_iso2: TH, destination_iso3: THA, destination_name: Thailand, snapshot_date: '2026-07-11', normalized_ordinal: 4, source_ingested_at: '2026-07-11 12:00:00'}
+          - {destination_iso2: TH, destination_iso3: THA, destination_name: Thailand, snapshot_date: '2026-07-12', normalized_ordinal: 4, source_ingested_at: '2026-07-12 12:00:00'}
+          - {destination_iso2: TH, destination_iso3: THA, destination_name: Thailand, snapshot_date: '2026-07-12', normalized_ordinal: 4, source_ingested_at: '2026-07-12 12:00:00'}
+    expect:
+      format: dict
+      rows:
+        - {snapshot_date: '2026-07-11', normalized_ordinal_median: 2.5, normalized_ordinal_range: 3, normalized_ordinal_median_delta: null, normalized_ordinal_range_delta: null, risk_direction: new, disagreement_direction: new}
+        - {snapshot_date: '2026-07-12', normalized_ordinal_median: 4.0, normalized_ordinal_range: 0, normalized_ordinal_median_delta: 1.5, normalized_ordinal_range_delta: -3, risk_direction: worsening, disagreement_direction: decreasing}

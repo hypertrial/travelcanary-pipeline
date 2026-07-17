@@ -1,0 +1,106 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "travelcanary-pipeline"
+version = "0.3.0"
+description = "Local-first dlt, dbt, DuckDB, and Dagster pipeline for travel-risk signals."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+  "dagster>=1.13.14",
+  "dagster-webserver>=1.8.0",
+  "dagster-dbt>=0.24.0",
+  "dbt-core>=1.8.0,<1.12",
+  "dbt-duckdb>=1.8.0",
+  "dlt[duckdb]>=1.0.0",
+  "defusedxml>=0.7.1",
+  "duckdb>=1.5.2",
+  "pycountry>=24.6.0",
+  "python-dotenv>=1.0.0",
+  "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "dagster-dg-cli>=1.13.0",
+  "mkdocs>=1.6.0",
+  "mkdocs-material>=9.5.0",
+  "pre-commit>=3.0.0",
+  "pytest>=8.0.0",
+  "pytest-cov>=5.0.0",
+  "pytest-xdist>=3.5.0",
+  "PyYAML>=6.0",
+  "ruff>=0.15.22",
+  "sqlfluff>=3.0.0",
+  "sqlfluff-templater-dbt>=3.0.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["travelcanary_pipeline*"]
+
+[tool.setuptools.package-data]
+travelcanary_pipeline = [
+  "ingestion/uk_fcdo/country_slugs.csv",
+  "ingestion/jp_mofa/country_codes.csv",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+filterwarnings = [
+  "ignore:.*AssetExecutionContext\\.op is deprecated.*:DeprecationWarning:dagster_dbt.asset_utils",
+]
+markers = [
+  "contract: offline saved-payload compatibility checks included in default CI",
+  "integration: hits external tools or shared resources",
+  "slow: expensive checks excluded from normal unit runs",
+  "repo_check: repository policy checks run via make lint only",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/travelcanary_pipeline"]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_empty = true
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+target-version = "py310"
+src = ["src"]
+line-length = 88
+extend-exclude = [
+  "dbt/target",
+  "dbt/dbt_packages",
+  ".venv",
+  ".dagster_home",
+]
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.sqlfluff.core]
+dialect = "duckdb"
+templater = "dbt"
+max_line_length = 130
+
+[tool.sqlfluff.templater.dbt]
+project_dir = "dbt"
+profiles_dir = "dbt/profiles"
+profile = "travelcanary"
+target = "dev"

@@ -1,0 +1,8 @@
+destination_iso2,destination_iso3,destination_name,issuing_government,snapshot_date,native_level,native_level_label,normalized_ordinal,normalized_level_label,previous_snapshot_date,previous_normalized_ordinal,normalized_ordinal_delta,advisory_direction,is_changed,source_url,source_published_at,source_ingested_at
+CH,CHE,Switzerland,us_state,<DATE>,unknown,Unknown provider-native level,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,new,false,https://example.com/us_state/switzerland,<NULL>,<TIMESTAMP>
+TH,THA,Thailand,ca_gac,<DATE>,2,2,2,Exercise a high degree of caution,<NULL>,<NULL>,<NULL>,new,false,https://example.com/ca_gac/thailand,<NULL>,<TIMESTAMP>
+TH,THA,Thailand,jp_mofa,<DATE>,1,1,1,Level 1,<NULL>,<NULL>,<NULL>,new,false,https://example.com/jp_mofa/thailand,<NULL>,<TIMESTAMP>
+TH,THA,Thailand,nl_mfa,<DATE>,geel,geel,2,Yellow,<NULL>,<NULL>,<NULL>,new,false,https://example.com/nl_mfa/thailand,<NULL>,<TIMESTAMP>
+TH,THA,Thailand,uk_fcdo,<DATE>,avoid_all_travel_to_whole_country,avoid_all_travel_to_whole_country,4,Avoid all travel,<NULL>,<NULL>,<NULL>,new,false,https://example.com/uk_fcdo/thailand,<NULL>,<TIMESTAMP>
+TH,THA,Thailand,us_state,<DATE>,1,1,1,Exercise normal precautions,<NULL>,<NULL>,<NULL>,new,false,https://example.com/us_state/thailand,<NULL>,<TIMESTAMP>
+UA,UKR,Ukraine,jp_mofa,<DATE>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,<NULL>,new,false,https://example.com/jp_mofa/0380,<NULL>,<TIMESTAMP>

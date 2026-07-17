@@ -1,0 +1,33 @@
+name: travelcanary
+version: 0.3.0
+config-version: 2
+profile: travelcanary
+flags:
+  indirect_selection: buildable
+  send_anonymous_usage_stats: false
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+target-path: target
+clean-targets: ["target", "dbt_packages"]
+models:
+  travelcanary:
+    +materialized: view
+    staging:
+      +schema: travelcanary_staging
+      +tags: ["staging"]
+    intermediate:
+      +schema: travelcanary_intermediate
+      +tags: ["intermediate"]
+    marts:
+      +schema: travelcanary_marts
+      +materialized: table
+      +tags: ["mart"]
+    observability:
+      +schema: travelcanary_observability
+      +materialized: table
+      +tags: ["observability"]
+seeds:
+  travelcanary:
+    +schema: travelcanary_staging
+    +quote_columns: false

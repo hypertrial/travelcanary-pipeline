@@ -1,0 +1,2 @@
+destination_iso2,destination_iso3,destination_name,snapshot_date,alert_type,severity,official_median_ordinal,official_max_ordinal,official_disagreement_range,gdelt_latest_event_date,gdelt_event_count_7d,gdelt_material_conflict_events_7d,gdelt_material_conflict_share_7d,gdelt_mention_count_7d,reason
+TH,THA,Thailand,<DATE>,official_low_gdelt_high,warning,2.0,4,3,<DATE>,7,6,0.8571428571428571,35,Official median is low while GDELT conflict or mention volume is high

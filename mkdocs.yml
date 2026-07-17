@@ -1,0 +1,36 @@
+site_name: TravelCanary
+site_description: Trustworthy local-first travel-risk data pipeline
+repo_url: https://github.com/hypertrial/travelcanary-pipeline
+strict: true
+
+theme:
+  name: material
+  palette:
+    primary: teal
+    accent: amber
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - content.code.copy
+
+nav:
+  - Overview: index.md
+  - Quickstart: quickstart.md
+  - Consumer guide: consumer-guide.md
+  - Architecture and lineage: architecture.md
+  - Operations and recovery: operations.md
+  - Source coverage and caveats: source-coverage.md
+  - Warehouse: warehouse.md
+  - Data contracts: data-contracts.md
+  - Configuration: configuration.md
+  - Naming: naming.md
+  - Development: development.md
+  - Troubleshooting: troubleshooting.md
+  - Legal and privacy: legal.md
+  - Changelog: changelog.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true

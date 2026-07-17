@@ -1,0 +1,26 @@
+source,native_value,normalized_ordinal,normalized_label
+us_state,1,1,Exercise normal precautions
+us_state,2,2,Exercise increased caution
+us_state,3,3,Reconsider travel
+us_state,4,4,Do not travel
+ca_gac,1,1,Exercise normal security precautions
+ca_gac,2,2,Exercise a high degree of caution
+ca_gac,3,3,Avoid non-essential travel
+ca_gac,4,4,Avoid all travel
+uk_fcdo,see_travel_advice,1,See FCDO travel advice
+uk_fcdo,exercise_normal_precautions_abroad,1,Exercise normal precautions abroad
+uk_fcdo,exercise_increased_caution_abroad,2,Exercise increased caution abroad
+uk_fcdo,avoid_all_but_essential_travel_to_the_whole_country,3,Avoid all but essential travel
+uk_fcdo,avoid_all_travel_to_the_whole_country,4,Avoid all travel
+uk_fcdo,avoid_all_but_essential_travel_to_whole_country,3,Avoid all but essential travel
+uk_fcdo,avoid_all_travel_to_whole_country,4,Avoid all travel
+uk_fcdo,avoid_all_but_essential_travel_to_parts,3,Avoid all but essential travel to parts
+uk_fcdo,avoid_all_travel_to_parts,4,Avoid all travel to parts
+nl_mfa,groen,1,Green
+nl_mfa,geel,2,Yellow
+nl_mfa,oranje,3,Orange
+nl_mfa,rood,4,Red
+jp_mofa,1,1,Level 1
+jp_mofa,2,2,Level 2
+jp_mofa,3,3,Level 3
+jp_mofa,4,4,Level 4

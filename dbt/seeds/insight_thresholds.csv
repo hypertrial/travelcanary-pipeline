@@ -1,0 +1,9 @@
+threshold_name,threshold_value,description
+high_disagreement_range_min,2,Normalized issuer range at or above this marks high disagreement
+significant_median_delta_min,0.5,Minimum median normalized advisory movement for country trend direction
+low_official_median_max,2,Official median at or below this counts as low official posture
+high_official_median_min,3,Official median at or above this counts as high official posture
+high_gdelt_conflict_events_7d_min,5,Seven day material conflict event count that can trigger divergence
+high_gdelt_conflict_share_7d_min,0.20,Seven day material conflict share that can trigger divergence
+high_gdelt_mentions_7d_min,25,Seven day mention count that can trigger divergence
+quiet_gdelt_event_count_7d_max,5,Seven day event count at or below this counts as quiet GDELT context

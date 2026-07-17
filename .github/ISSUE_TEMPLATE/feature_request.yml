@@ -1,0 +1,35 @@
+name: Feature request
+description: Propose a focused TravelCanary enhancement.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, `.env`, source payloads, DuckDB contents, or sensitive live diagnostics.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What analyst or operator problem should this solve?
+    validations: {required: true}
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should change?
+    validations: {required: true}
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Ingestion, Orchestration, dbt / warehouse, Operations, Documentation, CI / development]
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Simpler alternatives
+      description: Is an existing mart or workflow sufficient?
+  - type: textarea
+    id: contracts
+    attributes:
+      label: Contract impact
+      description: Note public mart, source, schedule, or no-score implications.

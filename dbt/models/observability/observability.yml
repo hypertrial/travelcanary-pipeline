@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: source_health
+    description: Latest source run status evaluated against the committed contract.
+    columns:
+      - name: source
+        tests: [unique, not_null]
+      - name: health_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: [healthy, warning, stale, rejected, unavailable, error]
+  - name: advisory_normalization_gaps
+  - name: country_crosswalk_gaps
+  - name: gdelt_country_code_gaps
+  - name: source_batch_regressions

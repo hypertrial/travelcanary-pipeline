@@ -1,0 +1,207 @@
+mofa_code,iso3,name
+0060,MYS,Malaysia
+0062,IDN,Indonesia
+0063,PHL,Philippines
+0065,SGP,Singapore
+0066,THA,Thailand
+0082,KOR,Korea  Republic of
+0084,VNM,Viet Nam
+0086,CHN,China
+0091,IND,India
+0092,PAK,Pakistan
+0094,LKA,Sri Lanka
+0095,MMR,Myanmar
+0670,TLS,Timor-Leste
+0673,BRN,Brunei Darussalam
+0850,PRK,Korea  Democratic People's Republic of
+0852,HKG,Hong Kong
+0853,MAC,Macao
+0855,KHM,Cambodia
+0856,LAO,Lao People's Democratic Republic
+0880,BGD,Bangladesh
+0886,TWN,Taiwan  Province of China
+0960,MDV,Maldives
+0975,BTN,Bhutan
+0976,MNG,Mongolia
+0977,NPL,Nepal
+0061,AUS,Australia
+0064,NZL,New Zealand
+0674,NRU,Nauru
+0675,PNG,Papua New Guinea
+0676,TON,Tonga
+0677,SLB,Solomon Islands
+0678,VUT,Vanuatu
+0679,FJI,Fiji
+0680,PLW,Palau
+0682,COK,Cook Islands
+0683,NIU,Niue
+0685,WSM,Samoa
+0686,KIR,Kiribati
+0687,NCL,New Caledonia
+0688,TUV,Tuvalu
+0691,FSM,Micronesia  Federated States of
+0692,MHL,Marshall Islands
+1001,MNP,Northern Mariana Islands
+1002,GUM,Guam
+1684,WSM,Samoa
+9689,PYF,French Polynesia
+1000,USA,United States
+1808,USA,United States
+9001,CAN,Canada
+0051,PER,Peru
+0052,MEX,Mexico
+0053,CUB,Cuba
+0054,ARG,Argentina
+0055,BRA,Brazil
+0056,CHL,Chile
+0057,COL,Colombia
+0058,VEN,Venezuela  Bolivarian Republic of
+0473,GRD,Grenada
+0501,BLZ,Belize
+0502,GTM,Guatemala
+0503,SLV,El Salvador
+0504,HND,Honduras
+0505,NIC,Nicaragua
+0506,CRI,Costa Rica
+0507,PAN,Panama
+0509,HTI,Haiti
+0591,BOL,Bolivia  Plurinational State of
+0592,GUY,Guyana
+0593,ECU,Ecuador
+0595,PRY,Paraguay
+0597,SUR,Suriname
+0598,URY,Uruguay
+0758,LCA,Saint Lucia
+0767,DMA,Dominica
+0784,VCT,Saint Vincent and the Grenadines
+0809,DOM,Dominican Republic
+0868,TTO,Trinidad and Tobago
+0869,KNA,Saint Kitts and Nevis
+0876,JAM,Jamaica
+1242,BHS,Bahamas
+1246,BRB,Barbados
+1268,ATG,Antigua and Barbuda
+0007,KAZ,Kazakhstan
+0030,GRC,Greece
+0031,NLD,Netherlands
+0032,BEL,Belgium
+0033,FRA,France
+0034,ESP,Spain
+0036,HUN,Hungary
+0039,ITA,Italy
+0040,ROU,Romania
+0041,CHE,Switzerland
+0043,AUT,Austria
+0044,GBR,United Kingdom
+0045,DNK,Denmark
+0046,SWE,Sweden
+0047,NOR,Norway
+0048,POL,Poland
+0049,DEU,Germany
+0351,PRT,Portugal
+0352,LUX,Luxembourg
+0353,IRL,Ireland
+0354,ISL,Iceland
+0355,ALB,Albania
+0356,MLT,Malta
+0357,CYP,Cyprus
+0358,FIN,Finland
+0359,BGR,Bulgaria
+0370,LTU,Lithuania
+0371,LVA,Latvia
+0372,EST,Estonia
+0373,MDA,Moldova  Republic of
+0374,ARM,Armenia
+0375,BLR,Belarus
+0376,AND,Andorra
+0377,MCO,Monaco
+0378,SMR,San Marino
+0380,UKR,Ukraine
+0381,SRB,Serbia
+0382,MNE,Montenegro
+0385,HRV,Croatia
+0386,SVN,Slovenia
+0387,BIH,Bosnia and Herzegovina
+0389,MKD,North Macedonia
+0420,CZE,Czechia
+0421,SVK,Slovakia
+0423,LIE,Liechtenstein
+0992,TJK,Tajikistan
+0993,TKM,Turkmenistan
+0994,AZE,Azerbaijan
+0995,GEO,Georgia
+0996,KGZ,Kyrgyzstan
+0998,UZB,Uzbekistan
+9007,RUS,Russian Federation
+9039,VAT,Holy See (Vatican City State)
+0090,TUR,Türkiye
+0093,AFG,Afghanistan
+0098,IRN,Iran  Islamic Republic of
+0961,LBN,Lebanon
+0962,JOR,Jordan
+0963,SYR,Syrian Arab Republic
+0964,IRQ,Iraq
+0965,KWT,Kuwait
+0966,SAU,Saudi Arabia
+0967,YEM,Yemen
+0968,OMN,Oman
+0970,PSE,Palestine  State of
+0971,ARE,United Arab Emirates
+0972,ISR,Israel
+0973,BHR,Bahrain
+0974,QAT,Qatar
+0020,EGY,Egypt
+0027,ZAF,South Africa
+0211,SSD,South Sudan
+0212,MAR,Morocco
+0213,DZA,Algeria
+0216,TUN,Tunisia
+0218,LBY,Libya
+0220,GMB,Gambia
+0221,SEN,Senegal
+0222,MRT,Mauritania
+0223,MLI,Mali
+0224,GIN,Guinea
+0225,CIV,Côte d'Ivoire
+0226,BFA,Burkina Faso
+0227,NER,Niger
+0228,TGO,Togo
+0229,BEN,Benin
+0230,MUS,Mauritius
+0231,LBR,Liberia
+0232,SLE,Sierra Leone
+0233,GHA,Ghana
+0234,NGA,Nigeria
+0235,TCD,Chad
+0236,CAF,Central African Republic
+0237,CMR,Cameroon
+0238,CPV,Cabo Verde
+0239,STP,Sao Tome and Principe
+0240,GNQ,Equatorial Guinea
+0241,GAB,Gabon
+0242,COG,Congo
+0243,COD,Congo  The Democratic Republic of the
+0244,AGO,Angola
+0245,GNB,Guinea-Bissau
+0248,SYC,Seychelles
+0249,SDN,Sudan
+0250,RWA,Rwanda
+0251,ETH,Ethiopia
+0252,SOM,Somalia
+0253,DJI,Djibouti
+0254,KEN,Kenya
+0255,TZA,Tanzania  United Republic of
+0256,UGA,Uganda
+0257,BDI,Burundi
+0258,MOZ,Mozambique
+0260,ZMB,Zambia
+0261,MDG,Madagascar
+0263,ZWE,Zimbabwe
+0264,NAM,Namibia
+0265,MWI,Malawi
+0266,LSO,Lesotho
+0267,BWA,Botswana
+0268,SWZ,Eswatini
+0269,COM,Comoros
+0291,ERI,Eritrea
+9212,ESH,Western Sahara

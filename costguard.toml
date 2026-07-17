@@ -1,0 +1,8 @@
+warehouse = "duckdb"
+
+[scan]
+paths = ["dbt/models"]
+ignore = ["dbt/target", "dbt/logs", "dbt_packages"]
+
+[dbt]
+manifest_path = "dbt/target/manifest.json"

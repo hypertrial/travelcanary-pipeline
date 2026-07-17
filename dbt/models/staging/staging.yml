@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: stg_all_advisories
+    columns:
+      - name: advisory_id
+        tests: [unique, not_null]
+      - name: source
+        tests: [not_null]
+  - name: stg_gdelt_events
+    columns:
+      - name: source_run_id
+        tests: [not_null]
+      - name: global_event_id
+        tests: [unique, not_null]
+      - name: event_date
+        tests: [not_null]

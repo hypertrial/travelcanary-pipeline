@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: us_state_raw
+    schema: us_state_raw
+    tables:
+      - name: advisories
+        meta: {dagster: {asset_key: [us_state, raw, advisories]}}
+  - name: ca_gac_raw
+    schema: ca_gac_raw
+    tables:
+      - name: advisories
+        meta: {dagster: {asset_key: [ca_gac, raw, advisories]}}
+  - name: uk_fcdo_raw
+    schema: uk_fcdo_raw
+    tables:
+      - name: advisories
+        meta: {dagster: {asset_key: [uk_fcdo, raw, advisories]}}
+  - name: nl_mfa_raw
+    schema: nl_mfa_raw
+    tables:
+      - name: advisories
+        meta: {dagster: {asset_key: [nl_mfa, raw, advisories]}}
+  - name: jp_mofa_raw
+    schema: jp_mofa_raw
+    tables:
+      - name: advisories
+        meta: {dagster: {asset_key: [jp_mofa, raw, advisories]}}
+  - name: gdelt_raw
+    schema: gdelt_raw
+    tables:
+      - name: events
+        meta: {dagster: {asset_key: [gdelt, raw, events]}}
+  - name: travelcanary_ops
+    schema: travelcanary_ops
+    tables:
+      - name: source_sync_runs

@@ -1,0 +1,12 @@
+{
+  "links": {
+    "children": [
+      {
+        "api_path": "/api/content/foreign-travel-advice/thailand",
+        "details": {
+          "country": {"name": "Thailand", "slug": "thailand"}
+        }
+      }
+    ]
+  }
+}

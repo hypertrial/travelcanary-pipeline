@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: costguard
+        name: costguard compile + scan (dbt/)
+        entry: bash -c 'uv run python -m dbt.cli.main compile --project-dir dbt --profiles-dir dbt/profiles --target dev && costguard scan --warehouse duckdb --manifest dbt/target/manifest.json dbt/models'
+        language: system
+        pass_filenames: false
+        files: \.(sql|yml|yaml)$

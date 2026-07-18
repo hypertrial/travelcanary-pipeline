@@ -42,7 +42,7 @@ Check `gdelt_country_code_gaps`, the accepted GDELT run date, and `GDELT_ROLLING
 
 ## History did not change after a rerun
 
-History merges the latest existing UTC snapshot date. Confirm the current run completed dbt and that the source row itself changed. When upgrading to `0.3.0`, reset the warehouse rather than trying to migrate it.
+History merges the latest existing UTC snapshot date. Confirm the current run completed dbt and that the source row itself changed. When upgrading across a breaking release, export history first with `make export-history`, rebuild the warehouse, then `make import-history` and rerun dbt. A dbt full refresh of the history model removes imported rows until you re-import.
 
 ## dbt shows duplicate raw assets
 

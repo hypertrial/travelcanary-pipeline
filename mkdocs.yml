@@ -1,5 +1,6 @@
 site_name: TravelCanary
 site_description: Trustworthy local-first travel-risk data pipeline
+site_url: https://hypertrial.github.io/travelcanary-pipeline/
 repo_url: https://github.com/hypertrial/travelcanary-pipeline
 strict: true
 

@@ -26,12 +26,13 @@ source-audit` for the read-only, opt-in live audit, add `--warehouse PATH` only
 when you want read-only previous-run context from an existing warehouse, or run
 `uv run make live-smoke` to exercise the live Dagster path against the
 disposable `.cache/live_smoke.duckdb` warehouse. Live audits and ingestion are
-local-only; GitHub Actions runs a compact offline gate. Existing warehouses
-must be deleted and rebuilt for `0.3.0`; removed raw tables may remain orphaned
-in old files but are never read.
+local-only; GitHub Actions runs a compact offline gate. Use
+`uv run make export-history` before a breaking warehouse rebuild, then
+`uv run make import-history HISTORY_PATH=...` after the clean rebuild to retain
+accepted advisory history.
 
-See the [documentation](docs/index.md), especially the
-[quickstart](docs/quickstart.md), [consumer guide](docs/consumer-guide.md),
+See the [documentation](https://hypertrial.github.io/travelcanary-pipeline/),
+especially the [quickstart](docs/quickstart.md), [consumer guide](docs/consumer-guide.md),
 [data contracts](docs/data-contracts.md), and [operations guide](docs/operations.md).
 Read the canonical [third-party and source notices](THIRD_PARTY_NOTICES.md) and
 [privacy notice](PRIVACY.md) before use or redistribution.
@@ -56,8 +57,11 @@ the private process in [SECURITY.md](SECURITY.md).
 
 - Official: United States, Canada, United Kingdom, Netherlands, and Japan.
 - Context: required GDELT 1 daily Events.
-- Output: country-only DuckDB marts for local analysis.
-- Deferred: regional public models, calibrated scoring, APIs, exports, migrations, GDELT 2, and additional issuers.
+- Output: country-only DuckDB marts for local analysis, plus optional Parquet
+  exports of the public marts and a history export/re-import bridge across
+  breaking warehouse rebuilds.
+- Deferred: regional public models, calibrated scoring, APIs, GDELT 2, and
+  additional issuers.
 
 TravelCanary is not travel advice and is not endorsed by any government or
 data provider. Always consult current official advice. The software has no

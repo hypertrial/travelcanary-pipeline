@@ -37,11 +37,17 @@ for a later retry. The next build removes stale managed candidate artifacts.
 | `country_context_alerts` | destination ISO3, snapshot date, alert type | Explainable official-versus-GDELT divergence flags |
 | `source_data_quality` | source | Consumer-facing source health, freshness, and completeness |
 
-There is no compatibility view or migration in `0.3.0`.
+There is no automatic migration layer. Use `make export-history` /
+`make import-history` to preserve `country_travel_risk_history` across a
+clean rebuild, then rebuild dbt so change and trend marts regenerate.
 
 ## Retention
 
 Official history in `country_travel_risk_history` is indefinite. After successful acceptance, each official raw advisory table retains only the current accepted batch. GDELT Events are pruned after each accepted sync to `GDELT_ROLLING_WINDOW_DAYS` (120 by default). Rejected or failed GDELT mutations roll back before their ledger outcome is recorded.
+
+Portable Parquet exports of the ten public marts are available through
+`make export-marts`. They are read-only snapshots of the published marts and do
+not replace the operator warehouse.
 
 The operator controls the local DuckDB file. Underlying source content and
 derived-data rights remain governed by their respective source terms; control

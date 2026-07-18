@@ -35,7 +35,10 @@ uv run make docs-check
 ## First live run
 
 1. Run `uv run make source-audit`. This fetches and validates live sources without writing the operator warehouse.
-2. Delete any existing TravelCanary warehouse; `0.3.0` intentionally removes source schemas and public columns.
+2. Before deleting an existing warehouse, run `uv run make export-history` if
+   you need to retain multi-day advisory history. Then delete the operator
+   DuckDB file and rebuild; use `uv run make import-history` after the first
+   successful rebuild when restoring history.
 3. Start Dagster with `uv run make dagster-dev`.
 4. Materialize `travelcanary_full_pipeline` manually and inspect `travelcanary_observability.source_health` plus all gap models.
 5. Only after a successful manual run, set `TRAVELCANARY_DAILY_SCHEDULE_ENABLED=true` and restart Dagster if daily execution is wanted.

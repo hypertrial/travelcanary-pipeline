@@ -2,6 +2,25 @@
 
 All notable changes are recorded here.
 
+## 0.4.0 — Portable, durable evidence — 2026-07-18
+
+Adds portable Parquet exports of the public marts and a first-class history
+export/re-import path so operators can preserve accepted advisory history
+across breaking warehouse rebuilds.
+
+- Added `make export-marts` / `scripts/export_public_marts.py` to export all
+  ten public marts to Parquet with a contract-validated `manifest.json`.
+- Added `EXPORT_DIR` (default `exports/`) and gitignored the export directory.
+- Added `make export-history` / `make import-history` for
+  `country_travel_risk_history`. Import acquires the writer lock, validates
+  columns, and inserts only missing unique keys so existing warehouse rows win.
+- Documented weekly and pre-release `source-audit` cadence, the rebuild bridge
+  procedure, and the existing-rows-win history transfer policy.
+- Added a tag-triggered MkDocs GitHub Pages workflow (`docs.yml`) so version
+  tags publish the documentation site without lengthening the PR CI gate.
+- Kept the `dbt-core <1.12` pin; current `dagster-dbt` still requires that
+  upper bound. Lift it when upstream support lands.
+
 ## 0.3.0 — Public-readiness release — 2026-07-18
 
 This is the planned first public release. Earlier versions and repository

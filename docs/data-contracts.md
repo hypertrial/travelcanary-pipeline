@@ -87,3 +87,13 @@ source URLs remain in their dedicated marts.
 `country_context_alerts` contains explainable official-versus-GDELT divergence flags only. Missing or stale GDELT suppresses alerts and remains visible through `source_data_quality`.
 
 `source_data_quality` promotes source health, freshness, row-volume, canonical coverage, and normalization status from observability into a consumer-facing mart.
+
+## History transfer policy
+
+`make export-history` / `make import-history` transfer only
+`travelcanary_marts.country_travel_risk_history`. Import validates Parquet
+columns against `PUBLIC_MART_COLUMNS` and inserts rows whose unique key
+`(destination_iso3, issuing_government, snapshot_date)` is absent. Existing
+warehouse rows win: a same-day corrected row is never displaced by an older
+export. Change and trend marts regenerate from restored history on the next
+dbt build.

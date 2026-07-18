@@ -39,12 +39,46 @@ client may still reference the replaced file's old inode.
 
 Same-day reruns replace the current UTC snapshot in `country_travel_risk_history`. Older accepted snapshots are retained indefinitely in the mart, not in official raw storage. Official raw tables are current-batch-only after successful finalization; GDELT raw events are retained for `GDELT_ROLLING_WINDOW_DAYS`.
 
-## Upgrade to 0.3.0
+## Preserve history across rebuilds
 
-There is no migration layer. Stop Dagster, delete the old operator DuckDB file
-and associated WAL files, and run a clean full pipeline. Back up the old file
-separately if needed. Removed Australia, Germany, and travel-advisory.info raw
-tables may remain orphaned in an old warehouse, but 0.3.0 ignores them.
+`country_travel_risk_history` is the only multi-day official advisory store.
+Raw tables keep the current accepted batch only, so a deleted warehouse loses
+history unless you export it first.
+
+```bash
+uv run make export-history
+# stop Dagster; delete the operator DuckDB file and WAL/lock siblings
+uv sync --locked --extra dev
+# run a clean full pipeline or offline demo rebuild
+uv run make import-history HISTORY_PATH=exports/country_travel_risk_history.parquet
+uv run make dbt-build
+```
+
+`export-history` writes a Parquet file plus a sibling
+`<stem>.manifest.json`. `import-history` acquires the warehouse writer lock,
+validates the Parquet columns against the public contract, creates the history
+table when absent, and inserts only rows whose
+`(destination_iso3, issuing_government, snapshot_date)` key is missing.
+Existing warehouse rows win, so a same-day corrected row is never displaced by
+an older export. Import against the primary warehouse only, never a dbt
+candidate file. A later dbt `--full-refresh` of the history model wipes
+imported rows; re-import after any full refresh.
+
+## Upgrade to 0.4.0
+
+A clean rebuild may still be required when schemas change. Before deleting the
+operator warehouse, run `uv run make export-history`. After the rebuild and
+first successful ingest/dbt build, run `import-history` and rebuild dbt so
+change and trend marts regenerate from the restored history. Whole-file
+backups remain valid but are no longer the only supported history bridge.
+
+## Live source audit cadence
+
+Run `uv run make source-audit` at least weekly on an operator-owned machine,
+and always before tagging a release. Treat a required-source rejection as a
+release blocker until the adapter, mapping, contract, or upstream availability
+issue is understood. Retain only reviewed sanitized audit output when sharing
+diagnostics; GitHub Actions never runs live audits.
 
 ## Live source audit
 

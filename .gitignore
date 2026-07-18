@@ -242,5 +242,6 @@ dbt/profiles/.user.yml
 *.tar
 *.tgz
 *.gz
+exports/
 dbt/target/
 dbt/logs/

@@ -1,4 +1,4 @@
-.PHONY: dagster-dev duckdb-ui demo demo-ui _build-seeded-warehouse dbt-build dbt-build-ci dbt-parse dbt-test dbt-unit golden-dbt contract-http docs-serve docs-build docs-check source-audit live-smoke check-costguard-version costguard format lint test test-cov coverage coverage-erase coverage-report unit-ingest unit-orchestration integration-dbt integration-dbt-cov integration-dagster integration-dagster-cov check-secrets clean-local-artifacts
+.PHONY: dagster-dev duckdb-ui demo demo-ui _build-seeded-warehouse dbt-build dbt-build-ci dbt-parse dbt-test dbt-unit golden-dbt contract-http docs-serve docs-build docs-check source-audit live-smoke export-marts export-history import-history check-costguard-version costguard format lint test test-cov coverage coverage-erase coverage-report unit-ingest unit-orchestration integration-dbt integration-dbt-cov integration-dagster integration-dagster-cov check-secrets clean-local-artifacts
 
 REPO_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 override PYTHON := $(shell if test -x "$(REPO_ROOT)/.venv/bin/python"; then printf '%s' "$(REPO_ROOT)/.venv/bin/python"; else printf 'python3'; fi)
@@ -83,6 +83,16 @@ source-audit:
 
 live-smoke:
 	$(RUN_IN_REPO) "$(PYTHON)" scripts/run_live_smoke.py
+
+export-marts:
+	$(RUN_IN_REPO) "$(PYTHON)" scripts/export_public_marts.py
+
+export-history:
+	$(RUN_IN_REPO) "$(PYTHON)" scripts/export_history.py
+
+import-history:
+	@test -n "$(HISTORY_PATH)" || { printf '%s\n' 'HISTORY_PATH is required, e.g. make import-history HISTORY_PATH=exports/country_travel_risk_history.parquet' >&2; exit 1; }
+	$(RUN_IN_REPO) "$(PYTHON)" scripts/import_history.py "$(HISTORY_PATH)"
 
 check-costguard-version:
 	@command -v costguard >/dev/null 2>&1 || { printf '%s\n' 'Costguard $(COSTGUARD_VERSION) is required. Install it with: curl -fsSL https://raw.githubusercontent.com/hypertrial/costguard/main/scripts/install.sh | sh -s -- v$(COSTGUARD_VERSION)' >&2; exit 1; }

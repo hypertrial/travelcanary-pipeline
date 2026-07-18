@@ -121,6 +121,19 @@ def test_offline_contract_commands_are_documented_and_implemented():
     assert all(path.stat().st_size < 10_000 for path in fixtures.iterdir())
 
 
+def test_export_and_history_commands_are_documented_and_implemented():
+    documentation = _all_docs()
+    makefile = (REPO_ROOT / "Makefile").read_text(encoding="utf-8")
+    for command in ("export-marts", "export-history", "import-history"):
+        assert f"{command}:" in makefile
+        assert command in documentation
+    assert "existing warehouse rows win" in documentation.lower()
+    assert "EXPORT_DIR" in documentation
+    assert "make export-marts" in documentation
+    assert "make export-history" in documentation
+    assert "make import-history" in documentation
+
+
 def test_strict_configuration_and_costguard_prerequisite_are_documented():
     documentation = _all_docs()
 
@@ -159,5 +172,18 @@ def test_ci_workflow_is_one_bounded_offline_runner():
     assert "source-audit" not in workflow_text
     assert not (workflow_path.parent / "live-readiness.yml").exists()
     assert sorted(path.name for path in workflow_path.parent.glob("*.yml")) == [
-        "ci.yml"
+        "ci.yml",
+        "docs.yml",
     ]
+
+
+def test_docs_workflow_deploys_only_on_version_tags():
+    workflow_path = REPO_ROOT / ".github/workflows/docs.yml"
+    workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
+    workflow_text = workflow_path.read_text(encoding="utf-8")
+    trigger = workflow.get("on", workflow.get(True))
+    assert trigger["push"]["tags"] == ["v*"]
+    assert "pull_request" not in trigger
+    assert workflow["permissions"]["contents"] == "write"
+    assert "mkdocs gh-deploy" in workflow_text
+    assert "timeout-minutes" in workflow_text

@@ -43,6 +43,17 @@ def resolve_duckdb_path() -> Path:
 DUCKDB_NAME = _optional_env_str("DUCKDB_NAME") or _DEFAULT_DUCKDB_NAME
 DUCKDB_PATH = resolve_duckdb_path()
 
+_DEFAULT_EXPORT_DIR = "exports"
+
+
+def resolve_export_dir() -> Path:
+    value = _optional_env_str("EXPORT_DIR") or _DEFAULT_EXPORT_DIR
+    path = Path(value).expanduser()
+    return (path if path.is_absolute() else BASE_DIR / path).resolve()
+
+
+EXPORT_DIR = resolve_export_dir()
+
 DBT_PROJECT_DIR = BASE_DIR / "dbt"
 _DEFAULT_DBT_PROFILES_DIR = BASE_DIR / "dbt" / "profiles"
 _ENV_DBT_PROFILES_DIR = os.getenv("DBT_PROFILES_DIR")
@@ -107,9 +118,11 @@ __all__ = [
     "DBT_PROJECT_DIR",
     "DUCKDB_NAME",
     "DUCKDB_PATH",
+    "EXPORT_DIR",
     "PACKAGE_DIR",
     "SRC_DIR",
     "dbt_cli_argv",
     "resolve_dbt_executable",
     "resolve_duckdb_path",
+    "resolve_export_dir",
 ]

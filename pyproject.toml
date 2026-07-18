@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "travelcanary-pipeline"
-version = "0.3.0"
+version = "0.4.0"
 description = "Local-first dlt, dbt, DuckDB, and Dagster pipeline for travel-risk signals."
 readme = "README.md"
 license = "MIT"

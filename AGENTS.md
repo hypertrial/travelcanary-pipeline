@@ -6,7 +6,8 @@ Local-first `dlt` + `dbt` + `DuckDB` + `Dagster` pipeline for trustworthy countr
 
 - Reuse existing helpers in this repo before adding dependencies.
 - Prefer stdlib; keep diffs minimal.
-- `0.3.0` is intentionally breaking; do not add compatibility aliases or migrations.
+- Breaking warehouse rebuilds remain allowed; preserve multi-day advisory history
+  with `export-history` / `import-history` rather than compatibility aliases.
 - Preserve native advisory meaning; normalized 1–4 levels are best-effort approximations.
 - Never add a TravelCanary score or recommendation to public marts.
 - Naming has **no scope token**: `<source>_<layer>_<subject>` (e.g. `us_state_raw_advisories`).
@@ -44,9 +45,9 @@ local-only.
 - `dbt/` — staging → intermediate → marts → observability
 - `tests/` — unit, integration, dbt policy tests
 
-## Sources (v0.3.0)
+## Sources (v0.4.0)
 
 Official adapters: US, Canada, UK, Netherlands, Japan.
 Required context: complete GDELT 1 daily Events export.
 
-Regional public models, scoring, APIs, exports, GDELT 2, and additional issuers are out of scope.
+Regional public models, scoring, APIs, GDELT 2, and additional issuers are out of scope.

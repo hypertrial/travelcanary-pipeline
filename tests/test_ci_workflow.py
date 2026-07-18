@@ -19,8 +19,21 @@ def test_ci_workflow_is_one_bounded_offline_runner():
     assert "source-audit" not in workflow_text
     assert "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0" in workflow_text
     assert sorted(path.name for path in workflow_path.parent.glob("*.yml")) == [
-        "ci.yml"
+        "ci.yml",
+        "docs.yml",
     ]
+
+
+def test_docs_workflow_publishes_on_version_tags_only():
+    workflow_path = ROOT / ".github" / "workflows" / "docs.yml"
+    workflow = yaml.safe_load(workflow_path.read_text())
+    workflow_text = workflow_path.read_text()
+    trigger = workflow.get("on", workflow.get(True))
+    assert trigger["push"]["tags"] == ["v*"]
+    assert "pull_request" not in trigger
+    assert workflow["permissions"]["contents"] == "write"
+    assert "mkdocs gh-deploy" in workflow_text
+    assert workflow["jobs"]["publish"]["timeout-minutes"] == 5
 
 
 def test_costguard_is_pinned_in_the_local_release_gate_only():

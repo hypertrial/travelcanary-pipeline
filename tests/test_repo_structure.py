@@ -105,6 +105,22 @@ def test_runtime_telemetry_is_disabled():
     )
 
 
+def test_package_and_dbt_project_versions_match():
+    pyproject = (ROOT / "pyproject.toml").read_text()
+    package_version = re.search(r'(?m)^version\s*=\s*"([^"]+)"\s*$', pyproject)
+    assert package_version is not None
+    version = package_version.group(1)
+
+    init = (ROOT / "src/travelcanary_pipeline/__init__.py").read_text()
+    assert f'__version__ = "{version}"' in init
+
+    http = (ROOT / "src/travelcanary_pipeline/resources/http.py").read_text()
+    assert f"TravelCanary/{version}" in http
+
+    dbt_project = yaml.safe_load((ROOT / "dbt/dbt_project.yml").read_text())
+    assert dbt_project["version"] == version
+
+
 def test_live_audit_engine_is_owned_by_the_package():
     engine = ROOT / "src/travelcanary_pipeline/live_audit.py"
     cli = (ROOT / "scripts/audit_live_sources.py").read_text()

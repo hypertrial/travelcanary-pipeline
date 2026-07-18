@@ -190,6 +190,51 @@ def test_duckdb_blank_values_are_unset_and_directories_fail(tmp_path, monkeypatc
         importlib.reload(settings_warehouse)
 
 
+def test_duckdb_memory_limit_setting_and_session_config(tmp_path, monkeypatch):
+    monkeypatch.delenv("DUCKDB_MEMORY_LIMIT", raising=False)
+    reloaded = importlib.reload(settings_warehouse)
+    assert reloaded.resolve_duckdb_memory_limit() is None
+    assert reloaded.DUCKDB_MEMORY_LIMIT is None
+
+    monkeypatch.setenv("DUCKDB_MEMORY_LIMIT", "   ")
+    reloaded = importlib.reload(settings_warehouse)
+    assert reloaded.resolve_duckdb_memory_limit() is None
+
+    monkeypatch.setenv("DUCKDB_MEMORY_LIMIT", "256MB")
+    reloaded = importlib.reload(settings_warehouse)
+    assert reloaded.resolve_duckdb_memory_limit() == "256MB"
+    assert reloaded.DUCKDB_MEMORY_LIMIT == "256MB"
+
+    warehouse = tmp_path / "memory.duckdb"
+    conn = connection._connect_duckdb(warehouse)
+    try:
+        limit = conn.execute("SELECT current_setting('memory_limit')").fetchone()[0]
+        # DuckDB reports decimal MB as binary MiB (256MB ~= 244.1 MiB).
+        assert "MiB" in limit or "MB" in limit.upper()
+        assert float(limit.split()[0]) < 300
+        assert (
+            conn.execute(
+                "SELECT current_setting('preserve_insertion_order')"
+            ).fetchone()[0]
+            is False
+        )
+    finally:
+        conn.close()
+
+    read_only = connection._connect_duckdb(warehouse, read_only=True)
+    try:
+        limit = read_only.execute("SELECT current_setting('memory_limit')").fetchone()[
+            0
+        ]
+        assert "MiB" in limit or "MB" in limit.upper()
+        assert float(limit.split()[0]) < 300
+    finally:
+        read_only.close()
+
+    monkeypatch.delenv("DUCKDB_MEMORY_LIMIT", raising=False)
+    importlib.reload(settings_warehouse)
+
+
 def test_settings_warehouse_env_profiles_and_dbt_resolution(tmp_path, monkeypatch):
     try:
         profiles = tmp_path / "profiles"

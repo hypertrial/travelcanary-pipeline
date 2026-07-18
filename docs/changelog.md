@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.0 — Live-ready at scale — 2026-07-18
+
+Fixes GDELT live-ingestion memory pressure, documents an audit-only issuer
+evaluation, and publishes demo Parquet exports as release assets.
+
+- Switched GDELT landing to a disk-backed native DuckDB upsert path and added
+  optional `DUCKDB_MEMORY_LIMIT`.
+- Hardened US State RSS fallback dedupe and FIPS/title identity conflicts.
+- Removed duplicate Japan MOFA USA/Samoa country-code mappings and ISO3 dedupe.
+- Documented NZ / Ireland / France candidate issuer fail verdicts; adopted none.
+- Added tag-triggered demo Parquet release-asset publishing.
+- Made `source-audit` and `live-smoke` mandatory local pre-tag checks.
+- Kept `dbt-core <1.12` until `dagster-dbt` supports that boundary.
+
 ## 0.4.0 — Portable, durable evidence — 2026-07-18
 
 Adds Parquet exports of the public marts and a history export/re-import bridge

@@ -140,6 +140,14 @@ its columns drift from `PUBLIC_MART_COLUMNS`. `make export-history` uses the
 same `EXPORT_DIR` default (`country_travel_risk_history.parquet` plus a sibling
 manifest). Generated Parquet files are gitignored; do not commit them.
 
+## Release assets
+
+Version tags publish offline demo Parquet exports of the public marts as GitHub
+release assets. These files are built from the seeded demo warehouse
+(`.cache/travelcanary_demo.duckdb`) and are synthetic demonstration data, not
+live advisories. Download them from the GitHub release page for the matching
+`v*` tag, or rebuild locally with `make demo` followed by `make export-marts`.
+
 ## Inspect native meaning
 
 Normalized levels are best-effort approximations. Before interpreting a

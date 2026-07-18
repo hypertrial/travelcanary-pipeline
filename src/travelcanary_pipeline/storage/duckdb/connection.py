@@ -59,6 +59,17 @@ def is_duckdb_lock_io_error(exc: BaseException) -> bool:
     return "conflicting lock" in msg or "could not set lock" in msg
 
 
+def _configure_duckdb_session(
+    conn: duckdb.DuckDBPyConnection, *, read_only: bool = False
+) -> duckdb.DuckDBPyConnection:
+    memory_limit = _settings.resolve_duckdb_memory_limit()
+    if memory_limit:
+        conn.execute("SET memory_limit = ?", [memory_limit])
+    if not read_only:
+        conn.execute("SET preserve_insertion_order = false")
+    return conn
+
+
 def _connect_duckdb(
     path: Optional[Path] = None, *, read_only: bool = False
 ) -> duckdb.DuckDBPyConnection:
@@ -67,7 +78,10 @@ def _connect_duckdb(
         path = _sync_active_duckdb_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
-        return duckdb.connect(str(path), read_only=read_only)
+        return _configure_duckdb_session(
+            duckdb.connect(str(path), read_only=read_only),
+            read_only=read_only,
+        )
     except duckdb.IOException as exc:
         if os.getenv("PYTEST_CURRENT_TEST") and is_duckdb_lock_io_error(exc):
             worker = os.getenv("PYTEST_XDIST_WORKER", "gw0")
@@ -77,7 +91,10 @@ def _connect_duckdb(
             )
             logger.warning("DuckDB locked at %s; using %s", path, alt_path)
             _ACTIVE_DUCKDB_PATH = alt_path
-            return duckdb.connect(str(_ACTIVE_DUCKDB_PATH))
+            return _configure_duckdb_session(
+                duckdb.connect(str(_ACTIVE_DUCKDB_PATH)),
+                read_only=False,
+            )
         raise
 
 

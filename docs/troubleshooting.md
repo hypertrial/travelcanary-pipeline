@@ -40,6 +40,10 @@ Check `country_crosswalk_gaps`, `advisory_normalization_gaps`, and raw source ro
 
 Check `gdelt_country_code_gaps`, the accepted GDELT run date, and `GDELT_ROLLING_WINDOW_DAYS`. GDELT joins action geography; events without a usable country remain observable but cannot contribute to a country mart.
 
+## GDELT or live-smoke runs out of memory
+
+GDELT lands through a disk-backed CSV stage and a single native DuckDB upsert, not row-by-row `executemany`. Writable sessions also set `preserve_insertion_order = false`. If DuckDB still reports an out-of-memory error on a constrained machine, set `DUCKDB_MEMORY_LIMIT` (for example `8GB`) in `.env`, stop competing writers, and rerun `uv run make live-smoke` against its disposable warehouse. Do not raise the limit above what the host can spare for other processes.
+
 ## History did not change after a rerun
 
 History merges the latest existing UTC snapshot date. Confirm the current run completed dbt and that the source row itself changed. When upgrading across a breaking release, export history first with `make export-history`, rebuild the warehouse, then `make import-history` and rerun dbt. A dbt full refresh of the history model removes imported rows until you re-import.

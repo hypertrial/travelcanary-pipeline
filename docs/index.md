@@ -13,10 +13,12 @@ advisory, history, theme, event, alert, and quality marts.
 
 TravelCanary publishes evidence, not a verdict. It provides issuer reporting counts, normalized minimum/median/maximum/range, advisory changes, country trends, advisory text themes, GDELT event context, divergence flags, and source quality. It does not claim that issuers are calibrated to one another, create a TravelCanary risk score, or recommend whether someone should travel.
 
-The `0.4.0` scope adds portable Parquet exports of the public marts and a
-history export/re-import path that bridges breaking warehouse rebuilds. It
-still deliberately excludes regional public models, hosted delivery, APIs,
-calibrated scoring, GDELT 2, and additional issuer adapters.
+The `0.5.0` scope makes live readiness operable on typical operator machines by
+fixing GDELT DuckDB memory pressure, documents an audit-only evaluation of
+additional issuers without adopting any, and publishes synthetic demo Parquet
+exports as GitHub release assets. It still deliberately excludes regional
+public models, hosted delivery, APIs, calibrated scoring, GDELT 2, and
+additional issuer adapters.
 
 ## Guarantees
 

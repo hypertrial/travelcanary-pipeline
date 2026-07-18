@@ -98,6 +98,13 @@ def test_live_operator_commands_are_documented_and_implemented():
         "GitHub Actions never runs live-source audits or live ingestion"
         in documentation
     )
+    assert "required before tagging a release" in documentation.lower()
+    agents = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    contributing = (REPO_ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+    for text in (agents, contributing, documentation):
+        assert "make source-audit" in text or "source-audit" in text
+        assert "make live-smoke" in text or "live-smoke" in text
+        assert "before tagging" in text.lower()
 
 
 def test_offline_demo_commands_are_documented_and_implemented():

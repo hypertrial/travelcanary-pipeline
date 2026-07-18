@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | `DUCKDB_PATH` | unset | Absolute warehouse path; overrides `DUCKDB_NAME` |
 | `DUCKDB_NAME` | `travelcanary.duckdb` | Warehouse filename under the repository root |
+| `DUCKDB_MEMORY_LIMIT` | unset | Optional DuckDB session `memory_limit` (e.g. `8GB`); blank keeps DuckDB's default |
 | `DBT_PROFILES_DIR` | repository profile | Optional dbt profiles directory |
 | `EXPORT_DIR` | `exports` | Directory for `make export-marts` and the default `make export-history` path |
 | `HTTP_CONNECT_TIMEOUT_SECONDS` | `10` | Outbound connection timeout |

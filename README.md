@@ -21,13 +21,14 @@ uv run make dagster-dev
 
 `demo` creates the deterministic offline `.cache/travelcanary_demo.duckdb`
 warehouse; `demo-ui` also opens it when the optional DuckDB CLI is installed.
-Neither command proves that live sources are reachable. Run `uv run make
-source-audit` for the read-only, opt-in live audit, add `--warehouse PATH` only
-when you want read-only previous-run context from an existing warehouse, or run
-`uv run make live-smoke` to exercise the live Dagster path against the
-disposable `.cache/live_smoke.duckdb` warehouse. Live audits and ingestion are
-local-only; GitHub Actions runs a compact offline gate. Use
-`uv run make export-history` before a breaking warehouse rebuild, then
+Neither command proves that live sources are reachable. Before tagging a
+release, run `uv run make source-audit` and `uv run make live-smoke` on an
+operator-owned machine. Add `--warehouse PATH` to the audit only when you want
+read-only previous-run context from an existing warehouse. `live-smoke`
+exercises the live Dagster path against the disposable
+`.cache/live_smoke.duckdb` warehouse. Live audits and ingestion are local-only;
+GitHub Actions runs a compact offline gate. Use `uv run make export-history`
+before a breaking warehouse rebuild, then
 `uv run make import-history HISTORY_PATH=...` after the clean rebuild to retain
 accepted advisory history.
 

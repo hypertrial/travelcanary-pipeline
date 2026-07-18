@@ -27,3 +27,27 @@ jobs:
       - run: uv sync --locked --extra dev
       - name: Publish documentation site
         run: uv run mkdocs gh-deploy --force
+
+  release-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.10"
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          enable-cache: true
+      - run: uv sync --locked --extra dev
+      - name: Build offline demo warehouse and export synthetic Parquet marts
+        run: |
+          unset DBT_PROFILES_DIR
+          uv run make demo
+          DUCKDB_PATH=.cache/travelcanary_demo.duckdb uv run make export-marts
+      - name: Upload demo Parquet exports to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test -f exports/manifest.json
+          gh release upload "${GITHUB_REF_NAME}" exports/* --clobber

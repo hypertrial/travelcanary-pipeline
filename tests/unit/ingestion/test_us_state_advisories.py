@@ -9,6 +9,92 @@ from travelcanary_pipeline.ingestion.us_state.advisories import (
 )
 
 
+def test_parse_us_advisories_dedupes_duplicate_advisory_ids_preferring_newer_classic_url():
+    rows = parse_us_advisories(
+        [
+            {
+                "Title": "Senegal - Level 1: Exercise Normal Precautions",
+                "Category": ["SG"],
+                "Link": (
+                    "https://travel.state.gov/content/tsg_aem/us/en/home/"
+                    "international-travel/travel-advisories/destination.sen.html"
+                ),
+                "Published": "Mon, 01 Dec 2025",
+            },
+            {
+                "Title": "Senegal - Level 2: Exercise Increased Caution",
+                "Category": ["SG"],
+                "Link": (
+                    "https://travel.state.gov/content/travel/en/traveladvisories/"
+                    "traveladvisories/senegal-travel-advisory.html"
+                ),
+                "Published": "Sat, 18 Jul 2026",
+            },
+            {
+                "Title": "Senegal - Level 1: Exercise Normal Precautions",
+                "Category": ["SG"],
+                "Link": (
+                    "https://travel.state.gov/content/tsg_aem/us/en/home/"
+                    "international-travel/travel-advisories/destination.sen.html"
+                ),
+                "Published": "not-a-date",
+            },
+            {
+                "Title": "Bonaire - Level 1: Exercise Normal Precautions",
+                "Category": [],
+                "Link": (
+                    "https://travel.state.gov/content/travel/en/traveladvisories/"
+                    "traveladvisories/bonaire-travel-advisory.html"
+                ),
+                "Updated": "2026-07-18T12:00:00+00:00",
+            },
+            {
+                "Title": "Saba - Level 1: Exercise Normal Precautions",
+                "Category": [],
+                "Link": (
+                    "https://travel.state.gov/content/travel/en/traveladvisories/"
+                    "traveladvisories/saba-travel-advisory.html"
+                ),
+            },
+        ],
+        ingested_at="2026-07-01T00:00:00+00:00",
+    )
+
+    assert [row["advisory_id"] for row in rows] == ["us_state:SN", "us_state:BQ"]
+    assert rows[0]["native_level"] == "2"
+    assert "senegal-travel-advisory.html" in (rows[0]["source_url"] or "")
+    assert rows[1]["destination_iso3"] == "BES"
+
+
+def test_parse_us_advisories_prefers_title_when_fips_tag_conflicts():
+    rows = parse_us_advisories(
+        [
+            {
+                "Title": "Eswatini - Level 2: Exercise Increased Caution",
+                "Category": ["SW"],  # FIPS for Sweden
+                "Link": (
+                    "https://travel.state.gov/content/tsg_aem/us/en/home/"
+                    "international-travel/travel-advisories/destination.swz.html"
+                ),
+            },
+            {
+                "Title": "Sweden - Level 2: Exercise Increased Caution",
+                "Category": ["SW"],
+                "Link": (
+                    "https://travel.state.gov/content/tsg_aem/us/en/home/"
+                    "international-travel/travel-advisories/destination.swe.html"
+                ),
+            },
+        ],
+        ingested_at="2026-07-01T00:00:00+00:00",
+    )
+
+    by_iso3 = {row["destination_iso3"]: row for row in rows}
+    assert set(by_iso3) == {"SWZ", "SWE"}
+    assert by_iso3["SWZ"]["advisory_id"] == "us_state:SZ"
+    assert by_iso3["SWE"]["advisory_id"] == "us_state:SE"
+
+
 def test_parse_us_advisories_extracts_level_and_iso2():
     rows = parse_us_advisories(
         [

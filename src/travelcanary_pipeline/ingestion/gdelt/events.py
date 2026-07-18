@@ -8,7 +8,7 @@ import tempfile
 import zipfile
 from collections.abc import Iterable, Iterator
 from datetime import date, datetime, timedelta, timezone
-from itertools import islice
+from pathlib import Path
 from typing import BinaryIO, Callable
 from uuid import uuid4
 
@@ -99,7 +99,21 @@ _SELECTED_COLUMNS = [
     "source_url",
     "ingested_at",
 ]
-_INSERT_BATCH_SIZE = 5_000
+_SELECTED_COLUMN_TYPES = {
+    "source_run_id": "VARCHAR",
+    "global_event_id": "VARCHAR",
+    "event_date": "VARCHAR",
+    "action_geo_country_code": "VARCHAR",
+    "event_root_code": "VARCHAR",
+    "quad_class": "INTEGER",
+    "goldstein_scale": "DOUBLE",
+    "avg_tone": "DOUBLE",
+    "num_mentions": "INTEGER",
+    "date_added": "VARCHAR",
+    "source_url": "VARCHAR",
+    "ingested_at": "VARCHAR",
+}
+_STAGE_WRITE_CHUNK = 5_000
 
 
 def _daily_export_url(for_date: date) -> str:
@@ -166,6 +180,30 @@ def _safe_float(value: object) -> float | None:
         return None
 
 
+def _csv_cell(value: object) -> object:
+    return "" if value is None else value
+
+
+def stage_gdelt_rows_to_csv(rows: Iterable[dict[str, object]], path: Path) -> int:
+    """Stream ``rows`` to ``path`` as CSV without materializing the full iterable."""
+    path = Path(path)
+    inserted = 0
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(_SELECTED_COLUMNS)
+        chunk: list[list[object]] = []
+        for row in rows:
+            chunk.append([_csv_cell(row[col]) for col in _SELECTED_COLUMNS])
+            if len(chunk) >= _STAGE_WRITE_CHUNK:
+                writer.writerows(chunk)
+                inserted += len(chunk)
+                chunk.clear()
+        if chunk:
+            writer.writerows(chunk)
+            inserted += len(chunk)
+    return inserted
+
+
 def ensure_gdelt_events_table(conn: duckdb.DuckDBPyConnection) -> None:
     schema = raw_schema(SOURCE_GDELT)
     conn.execute(f"CREATE SCHEMA IF NOT EXISTS {schema}")
@@ -192,22 +230,39 @@ def ensure_gdelt_events_table(conn: duckdb.DuckDBPyConnection) -> None:
 def upsert_gdelt_events(
     conn: duckdb.DuckDBPyConnection, rows: Iterable[dict[str, object]]
 ) -> int:
-    values = (tuple(row[col] for col in _SELECTED_COLUMNS) for row in rows)
-    batch = list(islice(values, _INSERT_BATCH_SIZE))
-    if not batch:
+    iterator = iter(rows)
+    try:
+        first = next(iterator)
+    except StopIteration:
         return 0
+
+    def observed() -> Iterator[dict[str, object]]:
+        yield first
+        yield from iterator
+
     ensure_gdelt_events_table(conn)
     schema = raw_schema(SOURCE_GDELT)
-    sql = f"""
-    INSERT OR REPLACE INTO {schema}.events
-    ({", ".join(_SELECTED_COLUMNS)})
-    VALUES ({", ".join("?" for _ in _SELECTED_COLUMNS)})
-    """
-    inserted = 0
-    while batch:
-        conn.executemany(sql, batch)
-        inserted += len(batch)
-        batch = list(islice(values, _INSERT_BATCH_SIZE))
+    column_list = ", ".join(_SELECTED_COLUMNS)
+    columns_sql = ", ".join(
+        f"'{name}': '{_SELECTED_COLUMN_TYPES[name]}'" for name in _SELECTED_COLUMNS
+    )
+    with tempfile.TemporaryDirectory(prefix="travelcanary-gdelt-") as tmp_dir:
+        csv_path = Path(tmp_dir) / "events.csv"
+        inserted = stage_gdelt_rows_to_csv(observed(), csv_path)
+        conn.execute(
+            f"""
+            INSERT OR REPLACE INTO {schema}.events ({column_list})
+            SELECT {column_list}
+            FROM read_csv(
+                ?,
+                header = true,
+                auto_detect = false,
+                nullstr = '',
+                columns = {{{columns_sql}}}
+            )
+            """,
+            [str(csv_path)],
+        )
     return inserted
 
 
@@ -443,6 +498,7 @@ __all__ = [
     "ensure_gdelt_events_table",
     "iter_gdelt_export_zip",
     "prune_gdelt_events",
+    "stage_gdelt_rows_to_csv",
     "sync_gdelt_daily_events",
     "upsert_gdelt_events",
 ]

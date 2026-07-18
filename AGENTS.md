@@ -30,12 +30,22 @@ make dbt-build-ci
 make costguard
 ```
 
-This is the full local release gate. GitHub Actions intentionally uses one
-runner for less than five cumulative minutes and runs lint, fast offline tests
-(including saved HTTP contracts), dbt parse, and a strict documentation build.
-The full 100%-coverage, Dagster/dbt integration, golden, build, and Costguard
-checks remain mandatory before a release. Live audits and ingestion are
-local-only.
+This is the full local offline release gate. Before tagging a release, also run
+the mandatory local-only live checks on an operator-owned machine:
+
+```bash
+make source-audit
+make live-smoke
+```
+
+GitHub Actions intentionally uses one runner for less than five cumulative
+minutes and runs lint, fast offline tests (including saved HTTP contracts),
+dbt parse, and a strict documentation build. The full 100%-coverage,
+Dagster/dbt integration, golden, build, and Costguard checks remain mandatory
+before a release. Create the GitHub release with `gh release create` (which
+pushes the `v*` tag) so the tag-triggered docs and demo Parquet release-asset
+workflows can attach to an existing release. Live audits and ingestion remain
+local-only and must never be wired into Actions.
 
 ## Layout
 
@@ -47,7 +57,7 @@ local-only.
 - `dbt/` — staging → intermediate → marts → observability
 - `tests/` — unit, integration, dbt policy tests
 
-## Sources (v0.4.0)
+## Sources (v0.5.0)
 
 Official adapters: US, Canada, UK, Netherlands, Japan.
 Required context: complete GDELT 1 daily Events export.

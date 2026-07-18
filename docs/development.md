@@ -28,6 +28,13 @@ uv run make dbt-build-ci
 uv run make costguard
 ```
 
+Before tagging a release, also run the mandatory local-only live checks:
+
+```bash
+uv run make source-audit
+uv run make live-smoke
+```
+
 See the repository
 [contributor guide](https://github.com/hypertrial/travelcanary-pipeline/blob/main/CONTRIBUTING.md),
 [security policy](https://github.com/hypertrial/travelcanary-pipeline/blob/main/SECURITY.md),
@@ -36,13 +43,13 @@ and [code of conduct](https://github.com/hypertrial/travelcanary-pipeline/blob/m
 for contribution, release, and private-reporting guidance.
 
 `uv run make source-audit` and `uv run make live-smoke` are local-only because
-they perform live network requests. GitHub Actions never runs live-source
-audits or live ingestion. `source-audit` is source-only by default;
-`--warehouse PATH` adds read-only previous-run context from an existing DuckDB
-file without mutating or initializing it. `live-smoke` writes its warehouse to
-`.cache/live_smoke.duckdb`, keeps transient dbt/dlt state under
-`.cache/live_smoke_*`, and validates the Dagster/dbt path against that
-disposable warehouse.
+they perform live network requests. They are required before tagging a release
+and remain operator-owned; GitHub Actions never runs live-source audits or live
+ingestion. `source-audit` is source-only by default; `--warehouse PATH` adds
+read-only previous-run context from an existing DuckDB file without mutating or
+initializing it. `live-smoke` writes its warehouse to `.cache/live_smoke.duckdb`,
+keeps transient dbt/dlt state under `.cache/live_smoke_*`, and validates the
+Dagster/dbt path against that disposable warehouse.
 
 ## Fixture policy
 

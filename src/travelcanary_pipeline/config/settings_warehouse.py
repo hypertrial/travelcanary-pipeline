@@ -54,6 +54,17 @@ def resolve_export_dir() -> Path:
 
 EXPORT_DIR = resolve_export_dir()
 
+
+def resolve_duckdb_memory_limit() -> str | None:
+    """Optional DuckDB ``memory_limit`` session value (e.g. ``8GB``).
+
+    Blank or unset leaves DuckDB's default memory ceiling unchanged.
+    """
+    return _optional_env_str("DUCKDB_MEMORY_LIMIT")
+
+
+DUCKDB_MEMORY_LIMIT = resolve_duckdb_memory_limit()
+
 DBT_PROJECT_DIR = BASE_DIR / "dbt"
 _DEFAULT_DBT_PROFILES_DIR = BASE_DIR / "dbt" / "profiles"
 _ENV_DBT_PROFILES_DIR = os.getenv("DBT_PROFILES_DIR")
@@ -116,6 +127,7 @@ __all__ = [
     "BASE_DIR",
     "DBT_PROFILES_DIR",
     "DBT_PROJECT_DIR",
+    "DUCKDB_MEMORY_LIMIT",
     "DUCKDB_NAME",
     "DUCKDB_PATH",
     "EXPORT_DIR",
@@ -123,6 +135,7 @@ __all__ = [
     "SRC_DIR",
     "dbt_cli_argv",
     "resolve_dbt_executable",
+    "resolve_duckdb_memory_limit",
     "resolve_duckdb_path",
     "resolve_export_dir",
 ]

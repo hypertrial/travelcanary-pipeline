@@ -28,6 +28,22 @@ Germany and the aggregator were removed from the public product scope.
 Australia and Germany remain ordinary destinations in ISO mappings and in
 other issuers' catalogs.
 
+## Candidate issuers evaluated in 0.5.0
+
+TravelCanary evaluated three additional official issuers against the same
+gate that removed Australia in 0.3.0: a documented, supported, complete
+structured endpoint (JSON, XML, or API — not HTML scraping) plus compatible
+automated-reuse terms. None were adopted in 0.5.0.
+
+| Candidate | Endpoint finding | Format / completeness | Reuse terms | Verdict |
+| --- | --- | --- | --- | --- |
+| New Zealand SafeTravel (MFAT) | Destination catalog is HTML (`https://www.safetravel.govt.nz/destinations`). Previously documented news/warnings RSS paths now redirect or 404 after the site redesign; no complete machine-readable advisory catalog was found (accessed 2026-07-18). | HTML destination pages with four advice levels; no supported complete JSON/XML/API catalog | Crown copyright licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) for text content; logos and imagery excluded ([SafeTravel copyright](https://www.safetravel.govt.nz/copyright), accessed 2026-07-18) | Fail — reuse terms are compatible, but no complete structured endpoint |
+| Ireland DFA Travel Advice | Public site is HTML (`https://www.ireland.ie/en/dfa/overseas-travel/advice/`). No documented complete structured catalog; community scrapers use browser automation against destination pages (accessed 2026-07-18). | Per-destination HTML pages | Irish Public Sector Open Data uses [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) for datasets published as open data; travel-advice HTML is not published as an open structured dataset, and TravelWise branding requires prior permission (accessed 2026-07-18) | Fail — no supported complete structured endpoint; automated reuse of the HTML catalog is not documented |
+| France Conseils aux Voyageurs (MEAE) | Public site is HTML (`https://www.diplomatie.gouv.fr/fr/conseils-aux-voyageurs/`). No production advisory API; `data.gouv.fr` hosts a usage-study page rather than a complete advisory catalog feed; `/conseils-aux-voyageurs/rss` returns 404 (accessed 2026-07-18). | HTML destination selector (~191 destinations per MEAE communications) | French public-site content remains under MEAE site terms; no open-data licence covering a complete machine-readable advisory catalog was identified (accessed 2026-07-18) | Fail — no supported complete structured endpoint with confirmed automated-reuse terms |
+
+Passing candidates would be noted here as adoption-ready for a later release.
+Nothing from this table is ingested in 0.5.0.
+
 See the canonical [source licence and attribution
 matrix](https://github.com/hypertrial/travelcanary-pipeline/blob/main/THIRD_PARTY_NOTICES.md)
 for provenance, transformation, redistribution, and no-endorsement terms.

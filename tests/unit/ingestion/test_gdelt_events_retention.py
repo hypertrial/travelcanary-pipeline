@@ -101,24 +101,46 @@ def test_upsert_gdelt_events_inserts_and_replaces_rows():
         conn.close()
 
 
-def test_upsert_gdelt_events_batches_large_iterables_without_retaining_rows():
-    class BatchConnection:
-        def __init__(self):
-            self.batch_sizes: list[int] = []
+def test_upsert_gdelt_events_stages_large_iterables_without_retaining_rows(tmp_path):
+    from travelcanary_pipeline.ingestion.gdelt.events import (
+        _STAGE_WRITE_CHUNK,
+        stage_gdelt_rows_to_csv,
+    )
 
-        def execute(self, _sql):
-            return self
+    peak_retained = 0
+    current_retained = 0
 
-        def executemany(self, _sql, rows):
-            self.batch_sizes.append(len(rows))
-            return self
+    def rows():
+        nonlocal peak_retained, current_retained
+        for index in range(12_001):
+            current_retained += 1
+            peak_retained = max(peak_retained, current_retained)
+            yield _event_row(str(index), "20260701")
+            current_retained -= 1
 
-    conn = BatchConnection()
-    rows = (_event_row(str(index), "20260701") for index in range(100_001))
+    staged = stage_gdelt_rows_to_csv(rows(), tmp_path / "events.csv")
+    assert staged == 12_001
+    assert peak_retained == 1
+    assert current_retained == 0
 
-    assert upsert_gdelt_events(conn, rows) == 100_001
-    assert conn.batch_sizes == [5_000] * 20 + [1]
-    assert max(conn.batch_sizes) == 5_000
+    exact_chunk = stage_gdelt_rows_to_csv(
+        (_event_row(str(index), "20260701") for index in range(_STAGE_WRITE_CHUNK)),
+        tmp_path / "exact_chunk.csv",
+    )
+    assert exact_chunk == _STAGE_WRITE_CHUNK
+
+    conn = duckdb.connect(":memory:")
+    try:
+        assert (
+            upsert_gdelt_events(
+                conn, (_event_row(str(i), "20260701") for i in range(3))
+            )
+            == 3
+        )
+        schema = raw_schema(SOURCE_GDELT)
+        assert conn.execute(f"SELECT COUNT(*) FROM {schema}.events").fetchone()[0] == 3
+    finally:
+        conn.close()
 
 
 def test_prune_gdelt_events_deletes_only_rows_before_cutoff():

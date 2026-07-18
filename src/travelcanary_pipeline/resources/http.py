@@ -14,7 +14,7 @@ from travelcanary_pipeline.resources.outbound_url import (
     validate_outbound_https_url,
 )
 
-DEFAULT_HEADERS = {"User-Agent": "TravelCanary/0.4.0 (+https://github.com/hypertrial)"}
+DEFAULT_HEADERS = {"User-Agent": "TravelCanary/0.5.0 (+https://github.com/hypertrial)"}
 _RETRY = Retry(
     total=3,
     connect=3,

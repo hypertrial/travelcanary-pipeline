@@ -2,6 +2,34 @@
 
 All notable changes are recorded here.
 
+## 0.5.0 — Live-ready at scale — 2026-07-18
+
+Fixes GDELT live ingestion memory pressure so `make live-smoke` can complete on
+typical operator machines, documents an audit-only issuer evaluation, and
+publishes demo Parquet exports as release assets.
+
+- Replaced GDELT row-by-row `executemany` upserts with a disk-backed CSV stage
+  and a single native `INSERT OR REPLACE ... SELECT FROM read_csv` inside the
+  existing accept/reject transaction.
+- Added optional `DUCKDB_MEMORY_LIMIT` and set
+  `preserve_insertion_order = false` on writable DuckDB sessions.
+- Hardened the US State RSS fallback: prefer title/slug identity when a FIPS
+  country tag conflicts, and collapse duplicate `advisory_id` rows (empty JSON
+  catalog currently yields dual classic/AEM RSS entries) before landing.
+- Removed duplicate Japan MOFA country-code mappings for USA and Samoa and
+  collapse any remaining same-ISO3 rows before landing so country marts keep a
+  single grain.
+- Evaluated New Zealand SafeTravel, Ireland DFA, and France Conseils aux
+  Voyageurs against the structured-endpoint and automated-reuse gate; documented
+  fail verdicts in `docs/source-coverage.md` and adopted none.
+- Extended the tag-triggered `docs.yml` workflow with a `release-assets` job that
+  builds the offline demo warehouse, exports public marts, and uploads synthetic
+  Parquet assets to the GitHub release.
+- Made `make source-audit` and `make live-smoke` mandatory local pre-tag checks
+  while keeping them out of GitHub Actions.
+- Kept the `dbt-core <1.12` pin; current `dagster-dbt` (through 0.29.11) still
+  requires that upper bound. Lift it when upstream support lands.
+
 ## 0.4.0 — Portable, durable evidence — 2026-07-18
 
 Adds portable Parquet exports of the public marts and a first-class history

@@ -57,6 +57,34 @@ def derive_jp_native_level(root: DefusedET.Element) -> str | None:
     return None
 
 
+def _jp_row_rank(row: AdvisoryRow) -> tuple[int, int]:
+    level = row.get("native_level")
+    level_num = int(level) if isinstance(level, str) and level.isdigit() else -1
+    native_id = str(row.get("destination_native_id") or "")
+    code_num = int(native_id) if native_id.isdigit() else 10**9
+    # Prefer higher risk; otherwise keep the lower MOFA country code.
+    return (level_num, -code_num)
+
+
+def dedupe_jp_rows_by_iso3(rows: list[AdvisoryRow]) -> list[AdvisoryRow]:
+    """Keep one row per resolved ISO3 for country-level marts."""
+    chosen: dict[str, AdvisoryRow] = {}
+    order: list[str] = []
+    unresolved: list[AdvisoryRow] = []
+    for row in rows:
+        iso3 = row.get("destination_iso3")
+        if not iso3:
+            unresolved.append(row)
+            continue
+        if iso3 not in chosen:
+            chosen[iso3] = row
+            order.append(iso3)
+            continue
+        if _jp_row_rank(row) > _jp_row_rank(chosen[iso3]):
+            chosen[iso3] = row
+    return [chosen[key] for key in order] + unresolved
+
+
 def _jp_summary_text(root: DefusedET.Element) -> str | None:
     title = (root.findtext("riskTitle") or "").strip()
     lead = (root.findtext("riskLead") or "").strip()
@@ -129,7 +157,7 @@ def fetch_jp_advisories(
             continue
         diagnostics.observe()
         rows.append(row)
-    return rows
+    return dedupe_jp_rows_by_iso3(rows)
 
 
 def sync_jp_mofa_advisories(
@@ -154,6 +182,7 @@ def sync_jp_mofa_advisories(
 
 __all__ = [
     "JP_COUNTRY_XML_BASE",
+    "dedupe_jp_rows_by_iso3",
     "derive_jp_native_level",
     "fetch_jp_advisories",
     "parse_jp_country_xml",

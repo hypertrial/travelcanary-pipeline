@@ -38,8 +38,19 @@ uv run make costguard
 uv run make demo
 ```
 
-Live source checks are local-only and opt-in. Never commit credentials, `.env`,
-DuckDB files, unsanitized source payloads, generated sites, or live diagnostics.
+Before tagging a release, also run the mandatory local-only live checks on an
+operator-owned machine:
+
+```bash
+uv run make source-audit
+uv run make live-smoke
+```
+
+Create the GitHub release with `gh release create` so the `v*` tag exists before
+the docs and demo Parquet release-asset workflows run. Live source checks are
+local-only and must never be wired into Actions. Never commit credentials,
+`.env`, DuckDB files, unsanitized source payloads, generated sites, or live
+diagnostics.
 
 Contract changes must update the authoritative seed, tests, changelog, and
 source-coverage documentation together. Saved payload fixtures under

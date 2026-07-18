@@ -5,6 +5,8 @@ from __future__ import annotations
 import csv
 import html
 import re
+from datetime import datetime
+from email.utils import parsedate_to_datetime
 from typing import Callable
 from urllib.parse import urlparse
 from xml.etree import ElementTree
@@ -84,6 +86,8 @@ def _title_country_identity(
     country_name = title.split(" - ")[0].strip()
     slug = urlparse(source_url).path.rstrip("/").rsplit("/", 1)[-1]
     slug = re.sub(r"-travel-advisory\d*$", "", slug.removesuffix(".html"))
+    if slug.startswith("destination."):
+        slug = slug.removeprefix("destination.")
     override = _US_TITLE_OVERRIDES.get(country_name) or _US_SLUG_OVERRIDES.get(slug)
     if override:
         country = pycountry.countries.get(alpha_3=override)
@@ -92,6 +96,57 @@ def _title_country_identity(
     if iso3:
         return iso2, iso3
     return resolve_iso(slug, slug.replace("-", " "))
+
+
+def _resolve_country_identity(
+    title: str, source_url: str, categories: list[object]
+) -> tuple[str | None, str | None]:
+    """Prefer title/slug identity when it conflicts with a FIPS country tag.
+
+    The empty JSON catalog falls back to RSS, where Country-Tag values are FIPS
+    codes that can disagree with the destination named in the title.
+    """
+    fips_iso2, fips_iso3 = _first_country_identity(categories)
+    title_iso2, title_iso3 = _title_country_identity(title, source_url)
+    if title_iso3 and (not fips_iso3 or fips_iso3 != title_iso3):
+        return title_iso2, title_iso3
+    if fips_iso3:
+        return fips_iso2, fips_iso3
+    return title_iso2, title_iso3
+
+
+def _published_sort_key(value: str | None) -> float:
+    if not value:
+        return float("-inf")
+    try:
+        return parsedate_to_datetime(value).timestamp()
+    except (TypeError, ValueError, IndexError):
+        pass
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return float("-inf")
+
+
+def _us_row_rank(row: AdvisoryRow) -> tuple[float, int, str]:
+    url = str(row.get("source_url") or "")
+    prefers_classic = 0 if "tsg_aem" in url else 1
+    return (_published_sort_key(row.get("published_at")), prefers_classic, url)
+
+
+def dedupe_us_advisory_rows(rows: list[AdvisoryRow]) -> list[AdvisoryRow]:
+    """Keep one row per ``advisory_id``, preferring newer classic catalog URLs."""
+    chosen: dict[str, AdvisoryRow] = {}
+    order: list[str] = []
+    for row in rows:
+        key = row["advisory_id"]
+        if key not in chosen:
+            chosen[key] = row
+            order.append(key)
+            continue
+        if _us_row_rank(row) > _us_row_rank(chosen[key]):
+            chosen[key] = row
+    return [chosen[key] for key in order]
 
 
 def parse_us_advisories(
@@ -111,12 +166,8 @@ def parse_us_advisories(
         title = str(item.get("Title") or "")
         native_level, native_label = parse_us_level(title)
         categories = item.get("Category") or []
-        iso2, iso3 = _first_country_identity(categories)
-        if not iso3:
-            iso2, iso3 = _title_country_identity(
-                title,
-                str(item.get("Link") or ""),
-            )
+        source_url = str(item.get("Link") or "")
+        iso2, iso3 = _resolve_country_identity(title, source_url, categories)
         destination_id = iso2 or title
         rows.append(
             row_from_parts(
@@ -130,13 +181,13 @@ def parse_us_advisories(
                 native_level=native_level,
                 native_level_label=native_label,
                 summary_text=str(item.get("Summary") or "")[:4000] or None,
-                source_url=str(item.get("Link") or "") or None,
+                source_url=source_url or None,
                 published_at=str(item.get("Updated") or item.get("Published") or "")
                 or None,
                 ingested_at=ingested,
             )
         )
-    return rows
+    return dedupe_us_advisory_rows(rows)
 
 
 def parse_us_rss(
@@ -218,6 +269,7 @@ def sync_us_state_advisories(
 __all__ = [
     "US_TRAVEL_ADVISORIES_URL",
     "US_TRAVEL_ADVISORIES_RSS_URL",
+    "dedupe_us_advisory_rows",
     "fetch_us_advisories",
     "parse_us_advisories",
     "parse_us_rss",

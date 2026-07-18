@@ -64,13 +64,15 @@ an older export. Import against the primary warehouse only, never a dbt
 candidate file. A later dbt `--full-refresh` of the history model wipes
 imported rows; re-import after any full refresh.
 
-## Upgrade to 0.4.0
+## Upgrade to 0.5.0
 
 A clean rebuild may still be required when schemas change. Before deleting the
 operator warehouse, run `uv run make export-history`. After the rebuild and
 first successful ingest/dbt build, run `import-history` and rebuild dbt so
 change and trend marts regenerate from the restored history. Whole-file
 backups remain valid but are no longer the only supported history bridge.
+On memory-constrained hosts, set `DUCKDB_MEMORY_LIMIT` before the first live
+GDELT sync.
 
 ## Live source audit cadence
 
@@ -79,6 +81,12 @@ and always before tagging a release. Treat a required-source rejection as a
 release blocker until the adapter, mapping, contract, or upstream availability
 issue is understood. Retain only reviewed sanitized audit output when sharing
 diagnostics; GitHub Actions never runs live audits.
+
+Before tagging a release, also run `uv run make live-smoke` on an
+operator-owned machine. A live-smoke failure is a release blocker. Create the
+GitHub release with `gh release create` (which pushes the `v*` tag) so the
+tag-triggered documentation deploy and demo Parquet release-asset jobs attach
+to an existing release.
 
 ## Live source audit
 
@@ -107,13 +115,21 @@ and never mutates the operator warehouse.
 
 ## Disposable live smoke
 
-`uv run make live-smoke` is an opt-in network workflow for first-run readiness. It ignores any operator `DUCKDB_PATH`, resets only `.cache/live_smoke.duckdb` plus `.cache/live_smoke_*` transient dbt/dlt state, runs the full `source-audit`, materializes the same asset path as `travelcanary_full_pipeline`, and validates the resulting marts and source health.
+`uv run make live-smoke` is the mandatory pre-tag live readiness workflow on an
+operator-owned machine. It ignores any operator `DUCKDB_PATH`, resets only
+`.cache/live_smoke.duckdb` plus `.cache/live_smoke_*` transient dbt/dlt state,
+runs the full `source-audit`, materializes the same asset path as
+`travelcanary_full_pipeline`, and validates the resulting marts and source
+health. On memory-constrained hosts, set `DUCKDB_MEMORY_LIMIT` (for example
+`8GB`) before rerunning; GDELT uses a disk-backed native upsert path that no
+longer depends on row-by-row `executemany`.
 
 If a required source fails the audit, `live-smoke` stops before Dagster materialization. This is expected when the upstream source is unavailable; the operator warehouse is not touched.
 
 ## Local-only live readiness
 
 GitHub Actions never runs live-source audits or live ingestion. The repository
-uses one offline CI runner capped at five minutes total. Run `source-audit` and
-`live-smoke` only on an operator-owned machine, retain disposable state below
-`.cache/`, and share only reviewed sanitized output when diagnosing a source.
+uses one offline CI runner capped at five minutes total. `source-audit` and
+`live-smoke` are required before tagging a release and must run only on an
+operator-owned machine. Retain disposable state below `.cache/`, and share only
+reviewed sanitized output when diagnosing a source.

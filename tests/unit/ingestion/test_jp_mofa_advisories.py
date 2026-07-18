@@ -140,6 +140,54 @@ def test_fetch_jp_advisories_reports_when_all_payloads_are_malformed():
     assert diagnostics.skip_reasons == {"non-XML advisory": 1}
 
 
+def test_fetch_jp_advisories_dedupes_duplicate_iso3_preferring_higher_risk():
+    rows = fetch_jp_advisories(
+        country_codes=[
+            {"mofa_code": "1808", "iso3": "USA", "name": "United States"},
+            {"mofa_code": "1000", "iso3": "USA", "name": "United States"},
+            {"mofa_code": "1684", "iso3": "WSM", "name": "Samoa"},
+            {"mofa_code": "0685", "iso3": "WSM", "name": "Samoa"},
+            {"mofa_code": "9999", "iso3": "", "name": "Unresolved"},
+        ],
+        fetch_text=lambda url: _fixture_xml(
+            risk2=1 if "1000" in url or "0685" in url else 0,
+            risk_title="title",
+        ),
+    )
+
+    assert [
+        (row["destination_iso3"], row["destination_native_id"], row["native_level"])
+        for row in rows
+    ] == [
+        ("USA", "1000", "2"),
+        ("WSM", "0685", "2"),
+        (None, "9999", None),
+    ]
+
+    from travelcanary_pipeline.ingestion.jp_mofa.advisories import (
+        dedupe_jp_rows_by_iso3,
+    )
+
+    kept = dedupe_jp_rows_by_iso3(
+        [
+            rows[0],
+            {
+                **rows[0],
+                "destination_native_id": "1808",
+                "advisory_id": "jp_mofa:1808",
+                "native_level": "1",
+            },
+        ]
+    )
+    assert kept[0]["destination_native_id"] == "1000"
+
+
 def test_load_country_codes_reads_packaged_csv():
     codes = _load_country_codes()
     assert any(row["mofa_code"] == "0380" for row in codes)
+    iso3_counts: dict[str, int] = {}
+    for row in codes:
+        iso3 = row["iso3"]
+        if iso3:
+            iso3_counts[iso3] = iso3_counts.get(iso3, 0) + 1
+    assert all(count == 1 for count in iso3_counts.values())

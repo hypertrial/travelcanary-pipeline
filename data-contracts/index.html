@@ -1,0 +1,983 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Trustworthy local-first travel-risk data pipeline">
+      
+      
+      
+        <link rel="canonical" href="https://hypertrial.github.io/travelcanary-pipeline/data-contracts/">
+      
+      
+        <link rel="prev" href="../warehouse/">
+      
+      
+        <link rel="next" href="../configuration/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Data contracts - TravelCanary</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#data-contracts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="TravelCanary" class="md-header__button md-logo" aria-label="TravelCanary" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TravelCanary
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data contracts
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/hypertrial/travelcanary-pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="TravelCanary" class="md-nav__button md-logo" aria-label="TravelCanary" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TravelCanary
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/hypertrial/travelcanary-pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../consumer-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Consumer guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture and lineage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations and recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../source-coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Source coverage and caveats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../warehouse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Warehouse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data contracts
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data contracts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#guard-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guard policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#offline-regression-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Offline regression contracts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#country-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Country identity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advisory-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advisory semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transparent-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transparent signals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#insight-marts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Insight marts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#history-transfer-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        History transfer policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../naming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Naming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../legal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Legal and privacy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#guard-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guard policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#offline-regression-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Offline regression contracts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#country-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Country identity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advisory-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advisory semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transparent-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transparent signals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#insight-marts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Insight marts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#history-transfer-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        History transfer policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="data-contracts">Data contracts<a class="headerlink" href="#data-contracts" title="Permanent link">&para;</a></h1>
+<p><code>dbt/seeds/source_contracts.csv</code> is authoritative for both Python ingestion and dbt observability. Explicit allowed normalization gaps live in <code>dbt/seeds/advisory_normalization_exceptions.csv</code> and remain visible in observability. Do not duplicate thresholds or exceptions in adapter code.</p>
+<h2 id="guard-policy">Guard policy<a class="headerlink" href="#guard-policy" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Static row floor: 80% of a verified healthy complete-catalog live audit.</li>
+<li>Relative size: warning below 90% of the previous accepted count; rejection below 80%.</li>
+<li>Freshness: warning after 36 hours without acceptance; error/stale after 72 hours.</li>
+<li>Official canonical ISO coverage: rejection below 98%; warning below 99%.</li>
+<li>Official normalization: at least 99% of rows with non-null native levels, except documented source-native cases.</li>
+<li>GDELT: rejection below 95% mapped non-empty action-country codes; warning below 98%.</li>
+</ul>
+<p>Every source is required. A failure stops the full pipeline. A run is accepted only after its raw write commits, and staging joins raw records to accepted run IDs.</p>
+<p>Official batches must also have unique <code>advisory_id</code> business keys before landing. Candidate rows are appended first; a single DuckDB transaction then records the run as accepted and prunes every other raw run ID. If that transaction fails, neither acceptance nor pruning commits, so the previous accepted batch remains visible. GDELT consumes and evaluates its streamed rows inside the upsert transaction; rejection, parsing failure, or write failure rolls back all raw mutations before recording the outcome.</p>
+<p>Adapters count every discovered, skipped, and blocking-skipped source record.
+Non-object advisories, missing document identities, invalid XML/pages, and
+structurally malformed GDELT rows reject required batches before acceptance.
+The only benign skip is a withdrawn UK advice page returning HTTP
+404; accepted batches record its categorized count in the existing ledger
+message. Transport failures remain errors rather than parse skips.</p>
+<p>The Python contract loader and dbt tests also validate the seed itself before
+use: the exact registry-derived six required sources, positive counts and
+freshness windows, ratios within <code>[0, 1]</code>, ordered warning/rejection ratios,
+ordered canonical thresholds, and warning freshness strictly below error
+freshness. Invalid or duplicate rows fail with their source and field instead
+of silently replacing a contract.</p>
+<h2 id="offline-regression-contracts">Offline regression contracts<a class="headerlink" href="#offline-regression-contracts" title="Permanent link">&para;</a></h2>
+<p>Sanitized saved payload fragments exercise the real fetch/parse entry point
+for all five official adapters and GDELT. They preserve
+provider nesting and field names while excluding full catalogs, credentials,
+headers, and long prose. These network-free checks run in the default coverage
+gate and are available directly as <code>uv run make contract-http</code>.</p>
+<p>Reviewed CSV fixtures compare every column and row for five critical marts:
+<code>country_travel_risk</code>, <code>country_risk_overview</code>,
+<code>country_advisory_changes</code>, <code>country_context_alerts</code>, and
+<code>source_data_quality</code>. Date/timestamp/elapsed-hour values are normalized;
+nulls, booleans, numeric values, statuses, counts, text, and column order remain
+exact. Schema and column-order validation continues to cover all ten public
+marts. Run the focused regression with <code>uv run make golden-dbt</code>.</p>
+<h2 id="country-identity">Country identity<a class="headerlink" href="#country-identity" title="Permanent link">&para;</a></h2>
+<p>Advisories resolve in this order:</p>
+<ol>
+<li>Explicit source-specific crosswalk.</li>
+<li>Valid ISO3 lookup.</li>
+<li>Valid ISO2 lookup.</li>
+<li>Unresolved.</li>
+</ol>
+<p>The crosswalk remains sparse and contains only genuine nonstandard identifiers. Public marts include only countries in <code>iso_countries.csv</code>; regional, compound, and unresolved records remain in observability with a reason.</p>
+<h2 id="advisory-semantics">Advisory semantics<a class="headerlink" href="#advisory-semantics" title="Permanent link">&para;</a></h2>
+<p><code>country_travel_risk</code> exposes canonical ISO2/ISO3/name, issuer, UTC snapshot date, native level/label, normalized ordinal/label, normalization status, summary, source URL, safely parsed source publication timestamp, and ingestion timestamp.</p>
+<p>Normalization is an approximation for comparison. Null native levels remain null, and unmapped values remain visible rather than being assigned a safe value.</p>
+<h2 id="transparent-signals">Transparent signals<a class="headerlink" href="#transparent-signals" title="Permanent link">&para;</a></h2>
+<p><code>country_risk_signals</code> exposes reporting issuer count; minimum, median, maximum, and range of normalized levels; latest official ingestion; and GDELT one-/seven-day event statistics and freshness. It contains no combined TravelCanary score or recommendation.</p>
+<p><code>country_risk_overview</code> is the current analyst entry point at one row per ISO3.
+It combines selected public signals, trend and change counts, sorted theme and
+alert names, and explicit source-usability counts and flags. Missing aggregate
+counts become zero, boolean aggregates become false, and absent multi-value
+text remains null. Its health fields describe pipeline data usability, never
+destination safety. Detailed native values, matched terms, alert reasons, and
+source URLs remain in their dedicated marts.</p>
+<h2 id="insight-marts">Insight marts<a class="headerlink" href="#insight-marts" title="Permanent link">&para;</a></h2>
+<p><code>country_advisory_changes</code> compares each issuer's current daily advisory row with its previous accepted daily snapshot and labels the movement as <code>new</code>, <code>worsening</code>, <code>improving</code>, <code>unchanged</code>, or <code>unknown</code>.</p>
+<p><code>country_risk_trends</code> aggregates official history by country and UTC snapshot date. Direction is based on median normalized official advisory level; issuer disagreement is based on the normalized range.</p>
+<p><code>country_advisory_themes</code> uses the auditable <code>advisory_theme_keywords</code> seed to flag five advisory text themes: terrorism, health, crime, conflict, and natural disasters. It stores matched keyword counts and matched terms, not NLP classifications.</p>
+<p><code>country_gdelt_event_types</code> aggregates accepted GDELT country events by daily CAMEO root event code and exposes event count, mention count, material-conflict count/share, average Goldstein scale, and average tone.</p>
+<p><code>country_context_alerts</code> contains explainable official-versus-GDELT divergence flags only. Missing or stale GDELT suppresses alerts and remains visible through <code>source_data_quality</code>.</p>
+<p><code>source_data_quality</code> promotes source health, freshness, row-volume, canonical coverage, and normalization status from observability into a consumer-facing mart.</p>
+<h2 id="history-transfer-policy">History transfer policy<a class="headerlink" href="#history-transfer-policy" title="Permanent link">&para;</a></h2>
+<p><code>make export-history</code> / <code>make import-history</code> transfer only
+<code>travelcanary_marts.country_travel_risk_history</code>. Import validates Parquet
+columns against <code>PUBLIC_MART_COLUMNS</code> and inserts rows whose unique key
+<code>(destination_iso3, issuing_government, snapshot_date)</code> is absent. Existing
+warehouse rows win: a same-day corrected row is never displaced by an older
+export. Change and trend marts regenerate from restored history on the next
+dbt build.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.indexes", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -14,6 +14,10 @@ from travelcanary_pipeline.storage.duckdb.connection import (
     ensure_duck_db,
     get_persistent_connection,
 )
+from travelcanary_pipeline.storage.duckdb.relations import (
+    describe_columns,
+    relation_exists,
+)
 from travelcanary_pipeline.storage.duckdb.writer_lock import warehouse_writer_lock
 
 HISTORY_MART = "country_travel_risk_history"
@@ -29,23 +33,6 @@ HISTORY_UNIQUE_KEY = (
 
 class HistoryTransferError(ValueError):
     """Raised when history export or import cannot proceed safely."""
-
-
-def _describe_columns(conn: Any, relation: str) -> list[str]:
-    return [row[0] for row in conn.execute(f"DESCRIBE {relation}").fetchall()]
-
-
-def _relation_exists(conn: Any, schema: str, table: str) -> bool:
-    row = conn.execute(
-        """
-        SELECT 1
-        FROM information_schema.tables
-        WHERE table_schema = ? AND table_name = ?
-        LIMIT 1
-        """,
-        [schema, table],
-    ).fetchone()
-    return row is not None
 
 
 def _parquet_columns(conn: Any, parquet_path: Path) -> list[str]:
@@ -74,10 +61,10 @@ def export_history(path: Path) -> dict[str, Any]:
 
     conn = get_persistent_connection(read_only=True)
     try:
-        if not _relation_exists(conn, HISTORY_SCHEMA, HISTORY_MART):
+        if not relation_exists(conn, HISTORY_SCHEMA, HISTORY_MART):
             raise HistoryTransferError(f"history mart is missing: {HISTORY_RELATION}")
         _validate_history_columns(
-            _describe_columns(conn, HISTORY_RELATION),
+            describe_columns(conn, HISTORY_RELATION),
             context=HISTORY_RELATION,
         )
         row_count, min_date, max_date = conn.execute(
@@ -133,7 +120,7 @@ def import_history(path: Path) -> dict[str, Any]:
                 context=str(path),
             )
             conn.execute(f"CREATE SCHEMA IF NOT EXISTS {HISTORY_SCHEMA}")
-            if not _relation_exists(conn, HISTORY_SCHEMA, HISTORY_MART):
+            if not relation_exists(conn, HISTORY_SCHEMA, HISTORY_MART):
                 conn.execute(
                     f"""
                     CREATE TABLE {HISTORY_RELATION} AS
@@ -143,7 +130,7 @@ def import_history(path: Path) -> dict[str, Any]:
                 )
             else:
                 _validate_history_columns(
-                    _describe_columns(conn, HISTORY_RELATION),
+                    describe_columns(conn, HISTORY_RELATION),
                     context=HISTORY_RELATION,
                 )
 

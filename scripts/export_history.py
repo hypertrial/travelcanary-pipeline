@@ -7,6 +7,7 @@ import json
 import sys
 from pathlib import Path
 
+from travelcanary_pipeline.config.settings import resolve_export_dir
 from travelcanary_pipeline.history_transfer import HistoryTransferError, export_history
 
 
@@ -16,12 +17,16 @@ def main(argv: list[str] | None = None) -> int:
         "path",
         type=Path,
         nargs="?",
-        default=Path("exports/country_travel_risk_history.parquet"),
-        help="Destination Parquet path.",
+        default=None,
+        help=(
+            "Destination Parquet path "
+            "(default: EXPORT_DIR/country_travel_risk_history.parquet)."
+        ),
     )
     args = parser.parse_args(argv)
+    path = args.path or (resolve_export_dir() / "country_travel_risk_history.parquet")
     try:
-        manifest = export_history(args.path)
+        manifest = export_history(path)
     except HistoryTransferError as exc:
         print(str(exc), file=sys.stderr)
         return 1

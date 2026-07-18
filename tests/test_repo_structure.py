@@ -116,6 +116,18 @@ def test_live_audit_engine_is_owned_by_the_package():
     assert "from scripts.audit_live_sources import" not in smoke
 
 
+def test_export_and_history_engines_are_owned_by_the_package():
+    assert (ROOT / "src/travelcanary_pipeline/export.py").is_file()
+    assert (ROOT / "src/travelcanary_pipeline/history_transfer.py").is_file()
+    export_cli = (ROOT / "scripts/export_public_marts.py").read_text()
+    history_export_cli = (ROOT / "scripts/export_history.py").read_text()
+    history_import_cli = (ROOT / "scripts/import_history.py").read_text()
+    assert "from travelcanary_pipeline.export import" in export_cli
+    assert "from travelcanary_pipeline.history_transfer import" in history_export_cli
+    assert "from travelcanary_pipeline.history_transfer import" in history_import_cli
+    assert "resolve_export_dir" in history_export_cli
+
+
 def test_python_and_dbt_source_contract_policies_share_sources_and_invariants():
     sql = (ROOT / "dbt/tests/assert_source_contracts_valid.sql").read_text()
     contracts = load_source_contracts()

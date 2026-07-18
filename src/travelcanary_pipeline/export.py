@@ -10,6 +10,10 @@ from typing import Any
 from travelcanary_pipeline import __version__
 from travelcanary_pipeline.public_contracts import PUBLIC_MART_COLUMNS, PUBLIC_MARTS
 from travelcanary_pipeline.storage.duckdb.connection import get_persistent_connection
+from travelcanary_pipeline.storage.duckdb.relations import (
+    describe_columns,
+    relation_exists,
+)
 
 MARTS_SCHEMA = "travelcanary_marts"
 
@@ -18,28 +22,11 @@ class ExportError(ValueError):
     """Raised when a public mart cannot be exported as contracted."""
 
 
-def _describe_columns(conn: Any, relation: str) -> list[str]:
-    return [row[0] for row in conn.execute(f"DESCRIBE {relation}").fetchall()]
-
-
-def _relation_exists(conn: Any, schema: str, table: str) -> bool:
-    row = conn.execute(
-        """
-        SELECT 1
-        FROM information_schema.tables
-        WHERE table_schema = ? AND table_name = ?
-        LIMIT 1
-        """,
-        [schema, table],
-    ).fetchone()
-    return row is not None
-
-
 def _validate_mart_columns(conn: Any, mart: str) -> str:
     relation = f"{MARTS_SCHEMA}.{mart}"
-    if not _relation_exists(conn, MARTS_SCHEMA, mart):
+    if not relation_exists(conn, MARTS_SCHEMA, mart):
         raise ExportError(f"public mart is missing: {relation}")
-    actual = _describe_columns(conn, relation)
+    actual = describe_columns(conn, relation)
     expected = PUBLIC_MART_COLUMNS[mart]
     if actual != expected:
         raise ExportError(

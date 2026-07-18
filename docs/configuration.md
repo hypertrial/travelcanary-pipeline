@@ -7,7 +7,7 @@
 | `DUCKDB_PATH` | unset | Absolute warehouse path; overrides `DUCKDB_NAME` |
 | `DUCKDB_NAME` | `travelcanary.duckdb` | Warehouse filename under the repository root |
 | `DBT_PROFILES_DIR` | repository profile | Optional dbt profiles directory |
-| `EXPORT_DIR` | `exports` | Directory for `make export-marts` Parquet output |
+| `EXPORT_DIR` | `exports` | Directory for `make export-marts` and the default `make export-history` path |
 | `HTTP_CONNECT_TIMEOUT_SECONDS` | `10` | Outbound connection timeout |
 | `HTTP_READ_TIMEOUT_SECONDS` | `30` | Outbound read timeout |
 | `GDELT_ROLLING_WINDOW_DAYS` | `120` | Accepted raw GDELT retention |

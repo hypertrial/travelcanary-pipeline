@@ -136,8 +136,9 @@ The default directory is `EXPORT_DIR` (`exports/` under the repository root).
 Each mart becomes `<mart>.parquet`, and `manifest.json` records the package
 version, UTC export timestamp, per-mart row counts, and contracted column
 lists. Export opens the warehouse read-only and fails if a mart is missing or
-its columns drift from `PUBLIC_MART_COLUMNS`. Generated Parquet files are
-gitignored; do not commit them.
+its columns drift from `PUBLIC_MART_COLUMNS`. `make export-history` uses the
+same `EXPORT_DIR` default (`country_travel_risk_history.parquet` plus a sibling
+manifest). Generated Parquet files are gitignored; do not commit them.
 
 ## Inspect native meaning
 

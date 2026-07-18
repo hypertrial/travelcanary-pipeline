@@ -153,5 +153,5 @@ integration-dagster-cov:
 
 clean-local-artifacts:
 	$(RUN_IN_REPO) find . -type d -name __pycache__ -prune -exec rm -rf {} +
-	$(RUN_IN_REPO) rm -rf .pytest_cache .ruff_cache .dagster_home .cache .coverage dbt/logs dbt/target site src/travelcanary_pipeline.egg-info
+	$(RUN_IN_REPO) rm -rf .pytest_cache .ruff_cache .dagster_home .cache .coverage dbt/logs dbt/target site src/travelcanary_pipeline.egg-info exports
 	$(RUN_IN_REPO) find . -maxdepth 2 \( -name '*.duckdb' -o -name '*.duckdb.tmp' -o -name '*.duckdb-wal' -o -name '*.duckdb-shm' -o -name '*.duckdb.wal' -o -name '*.duckdb.writer.lock' \) -exec rm -rf {} +

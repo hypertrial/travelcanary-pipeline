@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import duckdb
 import pytest
 
@@ -290,6 +292,18 @@ def test_history_cli_success_and_failure(tmp_path, monkeypatch):
     parquet_path = tmp_path / "cli-history.parquet"
     assert export_cli.main([str(parquet_path)]) == 0
     assert import_cli.main([str(parquet_path)]) == 0
+
+    default_dir = tmp_path / "default-exports"
+    monkeypatch.setenv("EXPORT_DIR", str(default_dir))
+    captured: list[Path] = []
+
+    def _capture(path: Path):
+        captured.append(path)
+        return {"file": path.name, "row_count": 0}
+
+    monkeypatch.setattr(export_cli, "export_history", _capture)
+    assert export_cli.main([]) == 0
+    assert captured == [(default_dir / "country_travel_risk_history.parquet").resolve()]
 
     monkeypatch.setattr(
         export_cli,

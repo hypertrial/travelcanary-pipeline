@@ -42,6 +42,8 @@ local-only.
 - `src/travelcanary_pipeline/ingestion/` — per-source fetch/parse/sync
 - `src/travelcanary_pipeline/storage/duckdb/` — warehouse connection and schemas
 - `src/travelcanary_pipeline/orchestration/` — Dagster assets, jobs, schedules
+- `src/travelcanary_pipeline/export.py` — public mart Parquet export
+- `src/travelcanary_pipeline/history_transfer.py` — history export/re-import
 - `dbt/` — staging → intermediate → marts → observability
 - `tests/` — unit, integration, dbt policy tests
 

@@ -2,7 +2,7 @@
 
 All notable changes are recorded here.
 
-## 0.3.0 — Public-readiness release — Unreleased
+## 0.3.0 — Public-readiness release — 2026-07-18
 
 This is the planned first public release. Earlier versions and repository
 history remain in a private archive and are not publicly available. Existing

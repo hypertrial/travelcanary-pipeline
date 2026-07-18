@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 — Public-readiness release — Unreleased
+## 0.3.0 — Public-readiness release — 2026-07-18
 
 This is the planned first public release. Earlier releases and history are
 private and unavailable. Existing warehouses require a clean rebuild.

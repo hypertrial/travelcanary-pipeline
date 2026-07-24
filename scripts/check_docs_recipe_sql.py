@@ -1,4 +1,4 @@
-"""Execute fenced SQL recipes from docs against the demo warehouse."""
+"""Execute fenced SQL recipes from docs against a fresh demo warehouse."""
 
 from __future__ import annotations
 
@@ -18,8 +18,7 @@ COPY_TO_RE = re.compile(r"(?i)(\bTO\s+)(['\"])([^'\"]+)\2")
 
 
 def _ensure_demo_warehouse() -> None:
-    if DEMO_WAREHOUSE.is_file():
-        return
+    # Always rebuild so recipe smoke cannot pass against a stale schema.
     result = subprocess.run(["make", "demo"], cwd=REPO_ROOT, check=False)
     if result.returncode != 0 or not DEMO_WAREHOUSE.is_file():
         raise SystemExit("failed to create demo warehouse via make demo")
@@ -30,7 +29,7 @@ def _extract_sql_blocks(text: str) -> list[str]:
 
 
 def _rewrite_copy_paths(sql: str) -> str:
-    if "COPY" not in sql:
+    if not re.search(r"(?i)\bcopy\b", sql):
         return sql
     temp_dir = Path(tempfile.gettempdir())
 

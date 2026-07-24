@@ -297,6 +297,12 @@ def test_query_chooser_covers_public_marts():
         assert mart in chooser, mart
 
 
+def test_query_recipes_cover_public_marts():
+    recipes = (DOCS / "guides/query-recipes.md").read_text(encoding="utf-8")
+    for mart in PUBLIC_MARTS:
+        assert mart in recipes, mart
+
+
 def _policy_corpus() -> str:
     parts = [path.read_text(encoding="utf-8") for path in sorted(DOCS.rglob("*.md"))]
     for name in ("README.md", "AGENTS.md", "CONTRIBUTING.md"):
@@ -310,7 +316,14 @@ def test_stale_phrase_denylist():
         "docs/legal.md",
         "produces a TravelCanary score",
         "TravelCanary recommendation score",
-        "GitHub Actions runs live",
-        "GitHub Actions run live",
     ):
         assert phrase not in corpus, phrase
+    # Affirmative live-in-Actions claims only (allow FAQ questions + "never…").
+    for match in re.finditer(
+        r"GitHub Actions (?:runs|run|executes) live\b", corpus, flags=re.IGNORECASE
+    ):
+        start = max(0, match.start() - 80)
+        window = corpus[start : match.end() + 120]
+        assert re.search(r"\b(?:never|not|do not|does not|## Does)\b", window, re.I), (
+            window
+        )

@@ -38,17 +38,17 @@ make source-audit
 make live-smoke
 ```
 
-GitHub Actions intentionally uses one runner for less than five cumulative
+The offline `ci.yml` fast-gate job intentionally stays under five cumulative
 minutes and runs lint, fast offline tests (including saved HTTP contracts),
 dbt parse, a strict documentation build, and docs structure/inventory tests
-(`docs-build docs-structure`). Playwright render checks and demo recipe SQL
-smoke stay in local `make docs-check` only. The full 100%-coverage,
-Dagster/dbt integration, golden, build, and Costguard checks remain mandatory
-before a release. Documentation publishes on `main`, `workflow_dispatch`, and
-`v*` tags; demo Parquet release assets remain tag-only. Create the GitHub
-release with `gh release create` (which pushes the `v*` tag) so the tag-only
-release-asset job attaches to an existing release. Live audits and ingestion
-remain local-only and must never be wired into Actions.
+(`docs-build docs-structure`). A separate Docs workflow publishes GH Pages on
+`main`, `workflow_dispatch`, and `v*` tags; demo Parquet release assets remain
+tag-only. Playwright render checks and demo recipe SQL smoke stay in local
+`make docs-check` only. The full 100%-coverage, Dagster/dbt integration,
+golden, build, and Costguard checks remain mandatory before a release. Create
+the GitHub release with `gh release create` (which pushes the `v*` tag) so the
+tag-only release-asset job attaches to an existing release. Live audits and
+ingestion remain local-only and must never be wired into Actions.
 
 ## Layout
 

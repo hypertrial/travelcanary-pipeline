@@ -29,7 +29,7 @@ Use `make export-history` before deleting the warehouse, then
 and trend marts regenerate from restored history. Existing warehouse rows win
 on import.
 
-## Does GitHub Actions execute live audits?
+## Does GitHub Actions run live audits?
 
 No. GitHub Actions never runs live-source audits or live ingestion.
 `source-audit` and `live-smoke` are required before tagging a release and must

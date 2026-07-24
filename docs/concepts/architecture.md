@@ -31,17 +31,17 @@ the previously published marts in the primary warehouse.
 
 ```mermaid
 flowchart TB
-  ingest["Required ingest\n(official + GDELT)"]
-  lock["Acquire writer.lock"]
+  ingest["Required ingest under writer.lock\n(official + GDELT)"]
   raw["Accepted raw + ledger\nin primary warehouse"]
+  dbtLock["Acquire writer.lock for dbt"]
   candidate["Clone to same-directory\ncandidate DuckDB"]
   dbt["dbt build + tests\non candidate"]
   promote["Checkpoint + atomic\nreplace primary"]
   fail["Delete candidate;\nprimary marts unchanged"]
 
-  ingest --> lock
-  lock --> raw
-  raw --> candidate
+  ingest --> raw
+  raw --> dbtLock
+  dbtLock --> candidate
   candidate --> dbt
   dbt -->|success| promote
   dbt -->|failure| fail

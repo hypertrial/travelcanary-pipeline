@@ -11,6 +11,12 @@ uv sync --locked --extra dev
 cp .env.example .env
 ```
 
+Docs contributors should install Chromium once for Playwright render checks:
+
+```bash
+uv run playwright install chromium
+```
+
 Keep the daily schedule disabled during development. Before opening a pull
 request, install the externally managed Costguard `2.5.0` CLI:
 
@@ -53,7 +59,8 @@ local-only and must never be wired into Actions. Never commit credentials,
 diagnostics.
 
 Contract changes must update the authoritative seed, tests, changelog, and
-source-coverage documentation together. Saved payload fixtures under
+[source-coverage](docs/reference/source-coverage.md) documentation together.
+Saved payload fixtures under
 `tests/fixtures/contracts/` preserve only the minimum reviewed upstream shape
 and run without network access in default CI. Update one only with an
 intentional adapter compatibility change. Golden CSV changes require the same

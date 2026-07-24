@@ -46,7 +46,7 @@ def test_docs_workflow_publishes_on_version_tags_only():
 def test_costguard_is_pinned_in_the_local_release_gate_only():
     makefile = (ROOT / "Makefile").read_text()
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-    development = (ROOT / "docs" / "development.md").read_text()
+    development = (ROOT / "docs" / "development" / "index.md").read_text()
     make_version = re.search(
         r"^COSTGUARD_VERSION := (\S+)$", makefile, re.MULTILINE
     ).group(1)

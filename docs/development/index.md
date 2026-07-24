@@ -95,3 +95,15 @@ must be minimal, synthetic equivalents that exercise only the required schema.
 ## Changing a contract
 
 Change the authoritative seed, tests, and source-coverage documentation together. A lower static floor requires evidence from a healthy full-catalog live audit; it is not a workaround for an upstream regression.
+
+## Docs IA
+
+TravelCanary docs follow the Hypertrial pipeline skeleton:
+
+- Audiences → Get started → Guides → Reference → Concepts → Development
+- Concept sextet: scope, operator responsibilities, FAQ, glossary, decisions,
+  integration
+- Analyst ladder: query chooser → recipes → dictionary → contracts → warehouse
+- Operator ladder: quickstart → day-two → validate/recover → troubleshooting
+- Every `docs/**/*.md` page must appear in `mkdocs.yml` nav
+- `uv run make docs-check` is the docs-only gate (strict build + structure/render)

@@ -1,5 +1,9 @@
 # Data contracts
 
+!!! note "Reference ladder"
+
+    Chooser → dictionary → public contracts → warehouse reference; do not treat staging/raw as APIs.
+
 `dbt/seeds/source_contracts.csv` is authoritative for both Python ingestion and dbt observability. Explicit allowed normalization gaps live in `dbt/seeds/advisory_normalization_exceptions.csv` and remain visible in observability. Do not duplicate thresholds or exceptions in adapter code.
 
 ## Guard policy

@@ -1,5 +1,9 @@
 # Warehouse
 
+!!! note "Reference ladder"
+
+    Chooser → dictionary → public contracts → warehouse reference; do not treat staging/raw as APIs.
+
 The default warehouse is `travelcanary.duckdb`; set `DUCKDB_PATH` to place it elsewhere.
 
 ## Raw and operational schemas

@@ -15,35 +15,74 @@ from travelcanary_pipeline.public_contracts import (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DOCS = REPO_ROOT / "docs"
 
-EXPECTED_NAV = [
-    "Overview",
-    "Quickstart",
-    "Consumer guide",
-    "Architecture and lineage",
-    "Operations and recovery",
-    "Source coverage and caveats",
-    "Warehouse",
-    "Data contracts",
-    "Configuration",
-    "Naming",
+EXPECTED_TOP_NAV = [
+    "Home",
+    "Audiences",
+    "Get started",
+    "Guides",
+    "Reference",
+    "Concepts",
     "Development",
-    "Troubleshooting",
-    "Legal and privacy",
-    "Changelog",
 ]
 
 
+def _nav_targets(items):
+    for item in items:
+        if isinstance(item, str):
+            yield item
+        elif isinstance(item, dict):
+            for value in item.values():
+                if isinstance(value, str):
+                    yield value
+                else:
+                    yield from _nav_targets(value)
+
+
 def _all_docs() -> str:
-    return "\n".join(path.read_text(encoding="utf-8") for path in DOCS.glob("*.md"))
+    return "\n".join(
+        path.read_text(encoding="utf-8") for path in sorted(DOCS.rglob("*.md"))
+    )
 
 
-def test_mkdocs_navigation_is_complete_and_files_exist():
-    config = yaml.safe_load((REPO_ROOT / "mkdocs.yml").read_text(encoding="utf-8"))
+def _config():
+    text = (REPO_ROOT / "mkdocs.yml").read_text(encoding="utf-8")
+    text = re.sub(r"!!python/name:([^\s]+)", r"\1", text)
+    return yaml.safe_load(text)
+
+
+def test_mkdocs_navigation_contains_every_docs_page():
+    config = _config()
     assert config["strict"] is True
     assert config["theme"]["name"] == "material"
-    assert [next(iter(item)) for item in config["nav"]] == EXPECTED_NAV
-    for item in config["nav"]:
-        assert (DOCS / next(iter(item.values()))).is_file()
+    assert [next(iter(item)) for item in config["nav"]] == EXPECTED_TOP_NAV
+    targets = set(_nav_targets(config["nav"]))
+    pages = {path.relative_to(DOCS).as_posix() for path in DOCS.rglob("*.md")}
+    assert targets == pages
+    for target in targets:
+        assert (DOCS / target).is_file(), target
+
+
+def test_every_page_starts_with_a_visible_h1():
+    for path in DOCS.rglob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        assert re.search(r"^# [^#]", text, re.MULTILINE), path.relative_to(DOCS)
+
+
+def test_mkdocs_theme_floor():
+    config = _config()
+    assert config["site_url"] == "https://hypertrial.github.io/travelcanary-pipeline/"
+    assert config["theme"]["font"] is False
+    features = set(config["theme"]["features"])
+    for required in (
+        "navigation.tabs",
+        "navigation.sections",
+        "navigation.indexes",
+        "content.code.copy",
+        "search.suggest",
+    ):
+        assert required in features
+    assert "search" in config["plugins"]
+    assert "assets/stylesheets/extra.css" in config["extra_css"]
 
 
 def test_documented_public_names_match_code():
@@ -79,7 +118,7 @@ def test_public_mart_contract_is_fully_documented():
 def test_environment_inventory_matches_documentation():
     env_text = (REPO_ROOT / ".env.example").read_text(encoding="utf-8")
     env_names = set(re.findall(r"^([A-Z][A-Z0-9_]+)=", env_text, re.MULTILINE))
-    config_doc = (DOCS / "configuration.md").read_text(encoding="utf-8")
+    config_doc = (DOCS / "reference/configuration.md").read_text(encoding="utf-8")
     assert env_names
     for name in env_names:
         assert f"`{name}`" in config_doc
@@ -194,3 +233,40 @@ def test_docs_workflow_deploys_only_on_version_tags():
     assert workflow["permissions"]["contents"] == "write"
     assert "mkdocs gh-deploy" in workflow_text
     assert "timeout-minutes" in workflow_text
+
+
+def test_readme_links_to_canonical_hubs():
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    for term in (
+        "docs/getting-started/index.md",
+        "docs/guides/query-the-warehouse.md",
+        "docs/reference/data-contracts.md",
+        "docs/guides/day-two-operations.md",
+        "docs/audiences/analysts.md",
+        "(CONTRIBUTING.md)",
+        "(PRIVACY.md)",
+        "(THIRD_PARTY_NOTICES.md)",
+    ):
+        assert term in readme
+
+
+def test_no_legacy_flat_docs_paths():
+    documentation = _all_docs()
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    for stale in (
+        "docs/consumer-guide.md",
+        "docs/operations.md",
+        "docs/quickstart.md",
+        "docs/architecture.md",
+        "docs/legal.md",
+        "docs/warehouse.md",
+        "docs/data-contracts.md",
+        "docs/configuration.md",
+        "docs/development.md",
+        "docs/troubleshooting.md",
+        "docs/source-coverage.md",
+        "docs/changelog.md",
+        "docs/naming.md",
+    ):
+        assert stale not in readme
+        assert stale not in documentation

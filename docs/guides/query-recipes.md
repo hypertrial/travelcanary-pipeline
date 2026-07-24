@@ -1,24 +1,7 @@
-# Consumer guide
+# Query recipes
 
-TravelCanary's public marts are local DuckDB tables. Start with the current
-country overview, then drill into native advisories and detailed context before
-using the data in analysis.
-
-## Build and open the offline demo
-
-The demo is deterministic, uses no live sources, and always recreates only
-`.cache/travelcanary_demo.duckdb`:
-
-```bash
-uv run make demo
-```
-
-If the optional `duckdb` CLI is installed and on `PATH`, build and open the
-same warehouse in DuckDB's local UI:
-
-```bash
-uv run make demo-ui
-```
+Copy-paste SQL for common analyst paths. Open the demo warehouse with
+`uv run make demo` or an operator DuckDB file.
 
 ## Country briefing
 
@@ -32,9 +15,6 @@ where destination_iso3 = 'THA';
 ```
 
 ## Find worsening issuers
-
-List the official issuers whose normalized posture worsened since their
-preceding accepted snapshot:
 
 ```sql
 select
@@ -122,32 +102,6 @@ where not is_healthy
 order by role, source;
 ```
 
-## Export public marts
-
-After a successful dbt build (or `make demo`), export every public mart to
-Parquet for portable analysis outside the repository tooling:
-
-```bash
-uv run make export-marts
-uv run python scripts/export_public_marts.py --output-dir /tmp/travelcanary-exports
-```
-
-The default directory is `EXPORT_DIR` (`exports/` under the repository root).
-Each mart becomes `<mart>.parquet`, and `manifest.json` records the package
-version, UTC export timestamp, per-mart row counts, and contracted column
-lists. Export opens the warehouse read-only and fails if a mart is missing or
-its columns drift from `PUBLIC_MART_COLUMNS`. `make export-history` uses the
-same `EXPORT_DIR` default (`country_travel_risk_history.parquet` plus a sibling
-manifest). Generated Parquet files are gitignored; do not commit them.
-
-## Release assets
-
-Version tags publish offline demo Parquet exports of the public marts as GitHub
-release assets. These files are built from the seeded demo warehouse
-(`.cache/travelcanary_demo.duckdb`) and are synthetic demonstration data, not
-live advisories. Download them from the GitHub release page for the matching
-`v*` tag, or rebuild locally with `make demo` followed by `make export-marts`.
-
 ## Inspect native meaning
 
 Normalized levels are best-effort approximations. Before interpreting a
@@ -167,6 +121,44 @@ where destination_iso3 = 'THA'
 order by issuing_government;
 ```
 
+## Historical movement
+
+```sql
+select
+    snapshot_date,
+    issuing_government,
+    normalized_ordinal,
+    native_level_label
+from travelcanary_marts.country_travel_risk_history
+where destination_iso3 = 'THA'
+order by snapshot_date desc, issuing_government
+limit 40;
+```
+
+```sql
+select *
+from travelcanary_marts.country_risk_trends
+where destination_iso3 = 'THA'
+order by snapshot_date desc
+limit 30;
+```
+
+## GDELT event types
+
+```sql
+select
+    event_date,
+    gdelt_root_event_code,
+    event_count,
+    mention_count,
+    material_conflict_share
+from travelcanary_marts.country_gdelt_event_types
+where destination_iso3 = 'THA'
+order by event_date desc, event_count desc
+limit 50;
+```
+
 Use `country_travel_risk_history`, `country_advisory_changes`, and
 `country_risk_trends` for historical analysis. The overview contains current
-state only.
+state only. See the [Data dictionary](../reference/data-dictionary.md) for
+grain and common mistakes.

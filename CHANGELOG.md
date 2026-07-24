@@ -2,6 +2,15 @@
 
 All notable changes are recorded here.
 
+## Unreleased
+
+- Reorganized documentation to the Hypertrial pipeline IA (Audiences, Get
+  started, Guides, Reference, Concepts, Development), with audience hubs, a
+  concept sextet, query recipes, a data dictionary page, and Material site
+  chrome matching OddsFox maturity patterns.
+- Added Playwright docs render checks; `make docs-check` now runs
+  `docs-build` plus structure and homepage render tests.
+
 ## 0.5.0 — Live-ready at scale — 2026-07-18
 
 Fixes GDELT live ingestion memory pressure so `make live-smoke` can complete on
@@ -21,7 +30,7 @@ publishes demo Parquet exports as release assets.
   single grain.
 - Evaluated New Zealand SafeTravel, Ireland DFA, and France Conseils aux
   Voyageurs against the structured-endpoint and automated-reuse gate; documented
-  fail verdicts in `docs/source-coverage.md` and adopted none.
+  fail verdicts in `docs/reference/source-coverage.md` and adopted none.
 - Extended the tag-triggered `docs.yml` workflow with a `release-assets` job that
   builds the offline demo warehouse, exports public marts, and uploads synthetic
   Parquet assets to the GitHub release.

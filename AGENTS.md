@@ -55,7 +55,11 @@ local-only and must never be wired into Actions.
 - `src/travelcanary_pipeline/export.py` — public mart Parquet export
 - `src/travelcanary_pipeline/history_transfer.py` — history export/re-import
 - `dbt/` — staging → intermediate → marts → observability
+- `docs/` — Audiences → Get started → Guides → Reference → Concepts → Development
 - `tests/` — unit, integration, dbt policy tests
+
+Docs-only PRs: `uv run make docs-check` (strict MkDocs build + structure/render).
+Install Chromium once for render checks: `uv run playwright install chromium`.
 
 ## Sources (v0.5.0)
 

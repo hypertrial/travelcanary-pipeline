@@ -2,36 +2,111 @@ site_name: TravelCanary
 site_description: Trustworthy local-first travel-risk data pipeline
 site_url: https://hypertrial.github.io/travelcanary-pipeline/
 repo_url: https://github.com/hypertrial/travelcanary-pipeline
+repo_name: hypertrial/travelcanary-pipeline
 strict: true
 
 theme:
   name: material
-  palette:
-    primary: teal
-    accent: amber
+  language: en
+  font: false
+  icon:
+    repo: fontawesome/brands/github
   features:
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
     - navigation.indexes
+    - navigation.path
+    - navigation.tracking
+    - navigation.footer
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
     - content.code.copy
+  palette:
+    scheme: slate
+    primary: custom
+    accent: custom
 
-nav:
-  - Overview: index.md
-  - Quickstart: quickstart.md
-  - Consumer guide: consumer-guide.md
-  - Architecture and lineage: architecture.md
-  - Operations and recovery: operations.md
-  - Source coverage and caveats: source-coverage.md
-  - Warehouse: warehouse.md
-  - Data contracts: data-contracts.md
-  - Configuration: configuration.md
-  - Naming: naming.md
-  - Development: development.md
-  - Troubleshooting: troubleshooting.md
-  - Legal and privacy: legal.md
-  - Changelog: changelog.md
+plugins:
+  - search
 
 markdown_extensions:
   - admonition
+  - attr_list
+  - md_in_html
   - tables
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
   - toc:
       permalink: true
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mermaid@11.15.0/dist/mermaid.min.js
+  - assets/javascripts/mermaid.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/hypertrial/travelcanary-pipeline
+      name: TravelCanary on GitHub
+
+copyright: >
+  Hypertrial-owned MIT software, not a hosted dataset.
+  <a href="https://hypertrial.github.io/travelcanary-pipeline/concepts/scope-and-non-goals/">Scope</a> ·
+  <a href="https://hypertrial.github.io/travelcanary-pipeline/concepts/operator-responsibilities/">Operator responsibilities</a> ·
+  <a href="https://github.com/hypertrial/travelcanary-pipeline/blob/main/THIRD_PARTY_NOTICES.md">Third-Party Notices</a> ·
+  <a href="https://github.com/hypertrial/travelcanary-pipeline/blob/main/PRIVACY.md">Privacy</a>.
+
+nav:
+  - Home: index.md
+  - Audiences:
+      - Analysts: audiences/analysts.md
+      - Operators: audiences/operators.md
+      - Contributors: audiences/contributors.md
+      - Integrators: audiences/integrators.md
+  - Get started:
+      - Quickstart: getting-started/index.md
+      - Choose a path: getting-started/choose-a-path.md
+  - Guides:
+      - Query the warehouse: guides/query-the-warehouse.md
+      - Query recipes: guides/query-recipes.md
+      - Export public marts: guides/export-public-marts.md
+      - Day-two operations: guides/day-two-operations.md
+      - Preserve history across rebuilds: guides/preserve-history-across-rebuilds.md
+      - Enable schedules: guides/enable-schedules.md
+      - Validate and recover: guides/validate-and-recover.md
+      - Troubleshooting: guides/troubleshooting.md
+  - Reference:
+      - Configuration: reference/configuration.md
+      - Orchestration: reference/orchestration.md
+      - Warehouse: reference/warehouse.md
+      - Data contracts: reference/data-contracts.md
+      - Data dictionary: reference/data-dictionary.md
+      - Source coverage: reference/source-coverage.md
+      - Scripts: reference/scripts.md
+      - Naming: reference/naming.md
+  - Concepts:
+      - System overview: concepts/system-overview.md
+      - Architecture: concepts/architecture.md
+      - Scope and non-goals: concepts/scope-and-non-goals.md
+      - Operator responsibilities: concepts/operator-responsibilities.md
+      - FAQ: concepts/faq.md
+      - Glossary: concepts/glossary.md
+      - Design decisions: concepts/decisions.md
+      - Integration: concepts/integration.md
+  - Development:
+      - Development guide: development/index.md
+      - Community: development/community.md
+      - Changelog: development/changelog.md

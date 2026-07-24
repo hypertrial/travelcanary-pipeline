@@ -1,40 +1,100 @@
+---
+hide:
+  - navigation
+  - toc
+---
+
+<div class="tc-hero" markdown>
+
+<div class="tc-hero__copy" markdown>
+
+<span class="tc-eyebrow">Local-first travel-risk evidence</span>
+
 # TravelCanary
 
-TravelCanary is a local-first data product for analysts and developers who need to compare official travel advisories without hiding their meaning behind a proprietary score.
+Build inspectable country-level travel-advisory warehouses with dlt, dbt,
+DuckDB, and Dagster.
 
-The pipeline lands source catalogs with dlt, transforms and tests them with dbt,
-stores everything in one operator-controlled DuckDB file, and exposes lineage and
-scheduling through Dagster. Public marts are country-only and retain both
-source-native meaning and a clearly labeled best-effort 1–4 approximation.
-Analysts can start with `country_risk_overview`, then drill into the dedicated
-advisory, history, theme, event, alert, and quality marts.
+Hypertrial-owned MIT software. No hosted service or TravelCanary score.
+[Licence scope](concepts/scope-and-non-goals.md) ·
+[Operator responsibilities](concepts/operator-responsibilities.md).
+
+[Get started](getting-started/index.md){ .md-button .md-button--primary }
+[Query the warehouse](guides/query-the-warehouse.md){ .md-button }
+
+</div>
+
+<div class="tc-hero__mark">
+  <span>TravelCanary</span>
+  <span>Pipeline</span>
+</div>
+
+</div>
+
+<div class="tc-install" markdown>
+
+**Start in the repository**
+
+```bash
+uv sync --locked --extra dev
+```
+
+</div>
+
+## Start with a task
+
+<div class="tc-task-grid" markdown>
+
+<article class="tc-task-card" markdown>
+
+### Analyze the data
+
+Open a local DuckDB warehouse, start from `country_risk_overview`, and use
+tested SQL recipes.
+
+[Analysts hub](audiences/analysts.md)
+
+</article>
+
+<article class="tc-task-card" markdown>
+
+### Operate the pipeline
+
+Install the project, keep schedules disabled, complete a validated run, then
+keep the warehouse healthy.
+
+[Operators hub](audiences/operators.md)
+
+</article>
+
+<article class="tc-task-card" markdown>
+
+### Contribute code
+
+Change adapters, dbt marts, orchestration, or docs with the right quality gate.
+
+[Contributors hub](audiences/contributors.md)
+
+</article>
+
+<article class="tc-task-card" markdown>
+
+### Integrate downstream
+
+Consume public marts and Parquet exports without inventing a TravelCanary score.
+
+[Integrators hub](audiences/integrators.md)
+
+</article>
+
+</div>
 
 ## Product boundaries
 
-TravelCanary publishes evidence, not a verdict. It provides issuer reporting counts, normalized minimum/median/maximum/range, advisory changes, country trends, advisory text themes, GDELT event context, divergence flags, and source quality. It does not claim that issuers are calibrated to one another, create a TravelCanary risk score, or recommend whether someone should travel.
+TravelCanary publishes evidence, not a verdict. Version `0.5.0` covers five
+official issuers plus required GDELT 1 context. It does not host datasets or
+operate a travel-risk API.
 
-The `0.5.0` scope makes live readiness operable on typical operator machines by
-fixing GDELT DuckDB memory pressure, documents an audit-only evaluation of
-additional issuers without adopting any, and publishes synthetic demo Parquet
-exports as GitHub release assets. It still deliberately excludes regional
-public models, hosted delivery, APIs, calibrated scoring, GDELT 2, and
-additional issuer adapters.
-
-## Guarantees
-
-- Five required official catalogs are fetched as complete batches and guarded before landing.
-- GDELT 1 complete daily Events is required for the full pipeline.
-- Rejected or uncommitted run IDs cannot become current public data.
-- Every public destination resolves through the committed ISO country dimension.
-- Daily advisory history is retained indefinitely, and a same-UTC-day rerun corrects that day.
-
-TravelCanary is not travel advice and is not endorsed by any government or
-data provider. Travel advisories remain time-sensitive source statements.
-Always consult current official advice and inspect the cited source URL and
-native label before acting.
-
-The software has no telemetry and sends no user data to Hypertrial. Upstream
-providers may independently log requests. MIT applies only to Hypertrial's
-original code; review the
-[canonical third-party notices](https://github.com/hypertrial/travelcanary-pipeline/blob/main/THIRD_PARTY_NOTICES.md)
-and [privacy notice](https://github.com/hypertrial/travelcanary-pipeline/blob/main/PRIVACY.md).
+[Choose a path](getting-started/choose-a-path.md), read the
+[FAQ](concepts/faq.md), or review the
+[architecture](concepts/architecture.md) before extending the pipeline.

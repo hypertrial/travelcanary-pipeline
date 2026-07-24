@@ -76,5 +76,5 @@ from travelcanary_marts.country_risk_overview
 order by worsening_issuer_count desc, destination_iso3;
 ```
 
-See the [consumer guide](consumer-guide.md) for analysis and drill-down queries.
+See [Query the warehouse](../guides/query-the-warehouse.md) and [Query recipes](../guides/query-recipes.md) for analysis and drill-down queries.
 Set `DUCKDB_PATH` when the operator warehouse should live outside the repository.

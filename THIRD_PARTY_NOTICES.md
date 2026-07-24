@@ -45,6 +45,11 @@ Other thresholds and synthetic demo records in `dbt/seeds/` and
 `tests/fixtures/` are Hypertrial-authored and covered by MIT unless a file
 states otherwise.
 
+## Documentation fonts
+
+Documentation fonts under `docs/assets/fonts/` are distributed under their
+included SIL Open Font License notices.
+
 ## Dependencies
 
 Runtime and development dependencies retain their own licences. The lockfile

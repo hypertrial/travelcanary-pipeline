@@ -33,8 +33,12 @@ before a breaking warehouse rebuild, then
 accepted advisory history.
 
 See the [documentation](https://hypertrial.github.io/travelcanary-pipeline/),
-especially the [quickstart](docs/quickstart.md), [consumer guide](docs/consumer-guide.md),
-[data contracts](docs/data-contracts.md), and [operations guide](docs/operations.md).
+especially the [quickstart](docs/getting-started/index.md),
+[analysts hub](docs/audiences/analysts.md),
+[query the warehouse](docs/guides/query-the-warehouse.md),
+[data contracts](docs/reference/data-contracts.md), and
+[day-two operations](docs/guides/day-two-operations.md).
+Serve docs locally with `uv run make docs-serve` at `http://127.0.0.1:8000`.
 Read the canonical [third-party and source notices](THIRD_PARTY_NOTICES.md) and
 [privacy notice](PRIVACY.md) before use or redistribution.
 

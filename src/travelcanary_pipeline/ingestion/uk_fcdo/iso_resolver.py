@@ -7,7 +7,7 @@ import re
 import pycountry
 
 # GOV.UK slugs that bundle multiple ISO territories or lack an ISO-3166-1 code.
-# These remain unmapped and are excluded from marts (documented in docs/warehouse.md).
+# These remain unmapped and are excluded from marts (documented in docs/reference/warehouse.md).
 UNMAPPED_SLUGS: frozenset[str] = frozenset(
     {
         "kosovo",  # no ISO-3166-1 code assigned

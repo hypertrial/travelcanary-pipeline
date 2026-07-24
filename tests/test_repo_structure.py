@@ -44,7 +44,9 @@ def test_community_policy_links_resolve():
 
 
 def test_development_docs_link_to_community_policies():
-    development = (ROOT / "docs" / "development.md").read_text()
+    development = "\n".join(
+        path.read_text() for path in (ROOT / "docs" / "development").rglob("*.md")
+    )
     base = "https://github.com/hypertrial/travelcanary-pipeline/blob/main/"
     for target in (
         "CHANGELOG.md",

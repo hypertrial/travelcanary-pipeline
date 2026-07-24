@@ -14,6 +14,8 @@
 - Normalized ordinals are best-effort 1–4 approximations; inspect native labels.
 - Overview health fields describe pipeline usability, never destination safety.
 - There is no TravelCanary score or recommendation.
+- Change and trend marts regenerate from restored history only after the next
+  dbt build; importing Parquet alone does not refresh them.
 
 ## `country_risk_overview`
 
@@ -22,7 +24,7 @@
 | Intended use | Current analyst briefing at one row per ISO3 |
 | Grain | `destination_iso3` |
 | Recommended filters | Start here; drill into dedicated marts for native text/URLs |
-| Common mistakes | Treating health fields as destination safety; inventing a combined score |
+| Common mistakes | Treating `all_required_sources_usable`, `gdelt_source_usable`, or usability counts as destination safety; inventing a combined score from overview fields |
 
 ## `country_travel_risk`
 
@@ -31,7 +33,7 @@
 | Intended use | Current accepted official advisory per issuer |
 | Grain | destination ISO3, issuer, snapshot date |
 | Recommended filters | Inspect `native_level_label`, `normalization_status`, `source_url` |
-| Common mistakes | Ignoring null native levels or treating normalized ordinal as authoritative |
+| Common mistakes | Ignoring null native levels (`native_level` / `native_level_label` stay null when the source has no level); treating `normalized_ordinal` as authoritative over native meaning |
 
 ## `country_travel_risk_history`
 
@@ -40,7 +42,7 @@
 | Intended use | Indefinite corrected daily history |
 | Grain | destination ISO3, issuer, snapshot date |
 | Recommended filters | Same-day reruns replace the current UTC snapshot |
-| Common mistakes | Expecting raw tables to retain multi-day history |
+| Common mistakes | Expecting raw tables to retain multi-day history; assuming `make import-history` alone refreshes change/trend marts without a following `make dbt-build` |
 
 ## `country_risk_signals`
 
@@ -48,7 +50,7 @@
 | --- | --- |
 | Intended use | Issuer consensus/disagreement plus labeled GDELT context |
 | Grain | destination ISO3, snapshot date |
-| Common mistakes | Combining GDELT and official medians into a proprietary score |
+| Common mistakes | Combining GDELT and official medians into a proprietary score; reading null GDELT fields as “safe” rather than missing/stale context |
 
 ## `country_advisory_changes`
 
@@ -57,6 +59,7 @@
 | Intended use | Issuer-level daily movement |
 | Grain | destination ISO3, issuer, snapshot date |
 | Directions | `new`, `worsening`, `improving`, `unchanged`, `unknown` |
+| Common mistakes | Expecting multi-day change rows after a history import without rebuilding dbt; treating `unknown` as a TravelCanary recommendation |
 
 ## `country_risk_trends`
 
@@ -64,6 +67,7 @@
 | --- | --- |
 | Intended use | Country median-risk direction and disagreement trend |
 | Grain | destination ISO3, snapshot date |
+| Common mistakes | Querying trends immediately after history import without `make dbt-build`; expecting trend depth when restored history was never imported |
 
 ## `country_advisory_themes`
 
@@ -71,7 +75,7 @@
 | --- | --- |
 | Intended use | Auditable keyword themes |
 | Grain | destination ISO3, issuer, snapshot date, theme |
-| Common mistakes | Treating themes as NLP classifications |
+| Common mistakes | Treating themes as NLP classifications or as safety warnings |
 
 ## `country_gdelt_event_types`
 
@@ -87,7 +91,7 @@
 | --- | --- |
 | Intended use | Explainable official-versus-GDELT divergence flags |
 | Grain | destination ISO3, snapshot date, alert type |
-| Common mistakes | Treating alerts as travel warnings |
+| Common mistakes | Treating alerts as travel warnings; ignoring that missing/stale GDELT suppresses alerts |
 
 ## `source_data_quality`
 
@@ -96,5 +100,6 @@
 | Intended use | Consumer-facing source health, freshness, and completeness |
 | Grain | source |
 | Recommended filters | `where not is_healthy` for diagnosis |
+| Common mistakes | Interpreting `is_healthy` / `is_usable` as destination safety rather than pipeline usability |
 
 See [Warehouse](warehouse.md) for schema ownership and retention.

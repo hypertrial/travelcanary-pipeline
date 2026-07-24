@@ -8,8 +8,14 @@ All notable changes are recorded here.
   started, Guides, Reference, Concepts, Development), with audience hubs, a
   concept sextet, query recipes, a data dictionary page, and Material site
   chrome matching OddsFox maturity patterns.
-- Added Playwright docs render checks; `make docs-check` now runs
-  `docs-build` plus structure and homepage render tests.
+- Thickened analyst/operator docs (dictionary, contracts, recipes,
+  troubleshooting, scripts, architecture) and added anti-drift structure
+  inventory tests plus local demo recipe SQL smoke
+  (`scripts/check_docs_recipe_sql.py`).
+- Split `docs-structure` / `docs-render`; CI runs `docs-build docs-structure`
+  while local `docs-check` also runs Playwright and recipe smoke.
+- Docs GH Pages now publishes on `main`, `workflow_dispatch`, and `v*` tags;
+  demo Parquet release assets remain tag-only.
 
 ## 0.5.0 — Live-ready at scale — 2026-07-18
 

@@ -1,7 +1,9 @@
 # Query recipes
 
 Copy-paste SQL for common analyst paths. Open the demo warehouse with
-`uv run make demo` or an operator DuckDB file.
+`uv run make demo` or an operator DuckDB file. These recipes cover every public
+mart in `PUBLIC_MARTS`. TravelCanary does **not** produce a safety score or
+travel recommendation.
 
 ## Country briefing
 
@@ -11,6 +13,29 @@ signals without producing a TravelCanary score or recommendation.
 ```sql
 select *
 from travelcanary_marts.country_risk_overview
+where destination_iso3 = 'THA';
+```
+
+## Transparent risk signals
+
+Issuer consensus and labeled GDELT context live in `country_risk_signals`. Do
+not combine these fields into a proprietary score:
+
+```sql
+select
+    destination_iso3,
+    destination_name,
+    reporting_issuer_count,
+    normalized_ordinal_min,
+    normalized_ordinal_median,
+    normalized_ordinal_max,
+    normalized_ordinal_range,
+    gdelt_event_count_1d,
+    gdelt_event_count_7d,
+    gdelt_material_conflict_share_7d,
+    gdelt_latest_event_date,
+    gdelt_is_fresh
+from travelcanary_marts.country_risk_signals
 where destination_iso3 = 'THA';
 ```
 
@@ -81,7 +106,8 @@ order by alert_type;
 
 ## Check source health
 
-Overview health fields make basic filtering join-free:
+Overview health fields make basic filtering join-free. They describe pipeline
+usability, never destination safety:
 
 ```sql
 select
@@ -105,7 +131,8 @@ order by role, source;
 ## Inspect native meaning
 
 Normalized levels are best-effort approximations. Before interpreting a
-country, inspect every issuer's native label and official page:
+country, inspect every issuer's native label and official page. Null natives
+stay null:
 
 ```sql
 select
@@ -143,12 +170,43 @@ order by snapshot_date desc
 limit 30;
 ```
 
+## Verify history import
+
+After `make import-history`, run `make dbt-build` so change and trend marts
+regenerate from restored history. Then verify history depth and that trends
+exist:
+
+```sql
+select
+    count(*) as history_rows,
+    count(distinct snapshot_date) as distinct_snapshot_dates,
+    min(snapshot_date) as earliest_snapshot,
+    max(snapshot_date) as latest_snapshot
+from travelcanary_marts.country_travel_risk_history;
+```
+
+```sql
+select
+    count(*) as trend_rows,
+    count(distinct snapshot_date) as distinct_trend_dates,
+    min(snapshot_date) as earliest_trend,
+    max(snapshot_date) as latest_trend
+from travelcanary_marts.country_risk_trends;
+```
+
+```sql
+select
+    count(*) as change_rows_with_previous
+from travelcanary_marts.country_advisory_changes
+where previous_snapshot_date is not null;
+```
+
 ## GDELT event types
 
 ```sql
 select
     event_date,
-    gdelt_root_event_code,
+    event_root_code,
     event_count,
     mention_count,
     material_conflict_share

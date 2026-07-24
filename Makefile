@@ -1,4 +1,4 @@
-.PHONY: dagster-dev duckdb-ui demo demo-ui _build-seeded-warehouse dbt-build dbt-build-ci dbt-parse dbt-test dbt-unit golden-dbt contract-http docs-serve docs-build docs-test docs-check source-audit live-smoke export-marts export-history import-history check-costguard-version costguard format lint test test-cov coverage coverage-erase coverage-report unit-ingest unit-orchestration integration-dbt integration-dbt-cov integration-dagster integration-dagster-cov check-secrets clean-local-artifacts
+.PHONY: dagster-dev duckdb-ui demo demo-ui _build-seeded-warehouse dbt-build dbt-build-ci dbt-parse dbt-test dbt-unit golden-dbt contract-http docs-serve docs-build docs-structure docs-render docs-test docs-recipe-smoke docs-check source-audit live-smoke export-marts export-history import-history check-costguard-version costguard format lint test test-cov coverage coverage-erase coverage-report unit-ingest unit-orchestration integration-dbt integration-dbt-cov integration-dagster integration-dagster-cov check-secrets clean-local-artifacts
 
 REPO_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 override PYTHON := $(shell if test -x "$(REPO_ROOT)/.venv/bin/python"; then printf '%s' "$(REPO_ROOT)/.venv/bin/python"; else printf 'python3'; fi)
@@ -75,10 +75,18 @@ docs-serve:
 docs-build:
 	$(RUN_IN_REPO) NO_MKDOCS_2_WARNING=true "$(PYTHON)" -m mkdocs build --strict
 
-docs-test:
-	$(RUN_IN_REPO) "$(PYTHON)" -m pytest tests/test_docs_structure.py tests/test_docs_render.py -q -n 0
+docs-structure:
+	$(RUN_IN_REPO) "$(PYTHON)" -m pytest tests/test_docs_structure.py -q -n 0
 
-docs-check: docs-build docs-test
+docs-render:
+	$(RUN_IN_REPO) "$(PYTHON)" -m pytest tests/test_docs_render.py -q -n 0
+
+docs-test: docs-structure docs-render
+
+docs-recipe-smoke:
+	$(RUN_IN_REPO) "$(PYTHON)" scripts/check_docs_recipe_sql.py
+
+docs-check: docs-build docs-test docs-recipe-smoke
 
 source-audit:
 	$(RUN_IN_REPO) "$(PYTHON)" scripts/audit_live_sources.py

@@ -40,12 +40,15 @@ make live-smoke
 
 GitHub Actions intentionally uses one runner for less than five cumulative
 minutes and runs lint, fast offline tests (including saved HTTP contracts),
-dbt parse, and a strict documentation build. The full 100%-coverage,
+dbt parse, a strict documentation build, and docs structure/inventory tests
+(`docs-build docs-structure`). Playwright render checks and demo recipe SQL
+smoke stay in local `make docs-check` only. The full 100%-coverage,
 Dagster/dbt integration, golden, build, and Costguard checks remain mandatory
-before a release. Create the GitHub release with `gh release create` (which
-pushes the `v*` tag) so the tag-triggered docs and demo Parquet release-asset
-workflows can attach to an existing release. Live audits and ingestion remain
-local-only and must never be wired into Actions.
+before a release. Documentation publishes on `main`, `workflow_dispatch`, and
+`v*` tags; demo Parquet release assets remain tag-only. Create the GitHub
+release with `gh release create` (which pushes the `v*` tag) so the tag-only
+release-asset job attaches to an existing release. Live audits and ingestion
+remain local-only and must never be wired into Actions.
 
 ## Layout
 
@@ -58,8 +61,10 @@ local-only and must never be wired into Actions.
 - `docs/` — Audiences → Get started → Guides → Reference → Concepts → Development
 - `tests/` — unit, integration, dbt policy tests
 
-Docs-only PRs: `uv run make docs-check` (strict MkDocs build + structure/render).
-Install Chromium once for render checks: `uv run playwright install chromium`.
+Docs-only PRs: `uv run make docs-check` (strict MkDocs build + structure +
+Playwright render + demo recipe SQL smoke). CI runs `docs-build docs-structure`
+only. Install Chromium once for render checks:
+`uv run playwright install chromium`.
 
 ## Sources (v0.5.0)
 

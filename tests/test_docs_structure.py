@@ -213,9 +213,10 @@ def test_ci_workflow_is_one_bounded_offline_runner():
 
     assert set(workflow["jobs"]) == {"fast-gate"}
     assert workflow["jobs"]["fast-gate"]["timeout-minutes"] == 5
-    assert "uv run make lint test dbt-parse docs-build" in workflow_text
+    assert "uv run make lint test dbt-parse docs-build docs-structure" in workflow_text
     assert "live-smoke" not in workflow_text
     assert "source-audit" not in workflow_text
+    assert "docs-render" not in workflow_text
     assert not (workflow_path.parent / "live-readiness.yml").exists()
     assert sorted(path.name for path in workflow_path.parent.glob("*.yml")) == [
         "ci.yml",
@@ -223,16 +224,22 @@ def test_ci_workflow_is_one_bounded_offline_runner():
     ]
 
 
-def test_docs_workflow_deploys_only_on_version_tags():
+def test_docs_workflow_deploys_on_main_tags_and_dispatch():
     workflow_path = REPO_ROOT / ".github/workflows/docs.yml"
     workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
     workflow_text = workflow_path.read_text(encoding="utf-8")
     trigger = workflow.get("on", workflow.get(True))
+    assert trigger["push"]["branches"] == ["main"]
     assert trigger["push"]["tags"] == ["v*"]
+    assert "workflow_dispatch" in trigger
     assert "pull_request" not in trigger
     assert workflow["permissions"]["contents"] == "write"
     assert "mkdocs gh-deploy" in workflow_text
     assert "timeout-minutes" in workflow_text
+    assert (
+        workflow["jobs"]["release-assets"]["if"]
+        == "startsWith(github.ref, 'refs/tags/v')"
+    )
 
 
 def test_readme_links_to_canonical_hubs():
@@ -270,3 +277,40 @@ def test_no_legacy_flat_docs_paths():
     ):
         assert stale not in readme
         assert stale not in documentation
+
+
+def test_scripts_inventory_is_documented():
+    scripts_doc = (DOCS / "reference/scripts.md").read_text(encoding="utf-8")
+    scripts = sorted(
+        path.name
+        for path in (REPO_ROOT / "scripts").glob("*.py")
+        if not path.name.startswith("_")
+    )
+    assert scripts
+    for name in scripts:
+        assert name in scripts_doc, name
+
+
+def test_query_chooser_covers_public_marts():
+    chooser = (DOCS / "guides/query-the-warehouse.md").read_text(encoding="utf-8")
+    for mart in PUBLIC_MARTS:
+        assert mart in chooser, mart
+
+
+def _policy_corpus() -> str:
+    parts = [path.read_text(encoding="utf-8") for path in sorted(DOCS.rglob("*.md"))]
+    for name in ("README.md", "AGENTS.md", "CONTRIBUTING.md"):
+        parts.append((REPO_ROOT / name).read_text(encoding="utf-8"))
+    return "\n".join(parts)
+
+
+def test_stale_phrase_denylist():
+    corpus = _policy_corpus()
+    for phrase in (
+        "docs/legal.md",
+        "produces a TravelCanary score",
+        "TravelCanary recommendation score",
+        "GitHub Actions runs live",
+        "GitHub Actions run live",
+    ):
+        assert phrase not in corpus, phrase

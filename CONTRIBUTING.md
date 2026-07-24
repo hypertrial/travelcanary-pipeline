@@ -11,7 +11,9 @@ uv sync --locked --extra dev
 cp .env.example .env
 ```
 
-Docs contributors should install Chromium once for Playwright render checks:
+Docs contributors should install Chromium once for Playwright render checks.
+Local `make docs-check` also runs demo recipe SQL smoke; CI runs only
+`docs-build docs-structure`.
 
 ```bash
 uv run playwright install chromium

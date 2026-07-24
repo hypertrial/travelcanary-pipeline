@@ -39,10 +39,10 @@ issue is understood. Retain only reviewed sanitized audit output when sharing
 diagnostics; GitHub Actions never runs live-source audits or live ingestion.
 
 Before tagging a release, also run `uv run make live-smoke` on an
-operator-owned machine. A live-smoke failure is a release blocker. Create the
+operator-owned machine. A live-smoke failure is a release blocker. Documentation
+publishes on pushes to `main`, `workflow_dispatch`, and `v*` tags. Create the
 GitHub release with `gh release create` (which pushes the `v*` tag) so the
-tag-triggered documentation deploy and demo Parquet release-asset jobs attach
-to an existing release.
+tag-only demo Parquet release-asset job attaches to an existing release.
 
 See [Validate and recover](validate-and-recover.md) for audit flags and
 recovery steps, and

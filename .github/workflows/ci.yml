@@ -30,4 +30,4 @@ jobs:
           enable-cache: true
       - run: uv sync --locked --extra dev
       - name: Fast offline gate
-        run: uv run make lint test dbt-parse docs-build
+        run: uv run make lint test dbt-parse docs-build docs-structure

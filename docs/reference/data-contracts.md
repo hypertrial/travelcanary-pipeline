@@ -6,6 +6,21 @@
 
 `dbt/seeds/source_contracts.csv` is authoritative for both Python ingestion and dbt observability. Explicit allowed normalization gaps live in `dbt/seeds/advisory_normalization_exceptions.csv` and remain visible in observability. Do not duplicate thresholds or exceptions in adapter code.
 
+## Public vs ops surfaces
+
+| Surface | Relation examples | Consumer use |
+| --- | --- | --- |
+| Public marts | `travelcanary_marts.*` (ten tables in `PUBLIC_MARTS`) | Stable analyst/integrator API |
+| Ops ledger | `travelcanary_ops.source_sync_runs` | Acceptance outcomes; not a public API |
+| Raw | `*_raw.*` | Latest accepted batch only; inspectable, not an API |
+| Staging / intermediate | `travelcanary_staging.*`, intermediates | Rebuild inputs; not an API |
+| Observability | `travelcanary_observability.*` | Gap and health diagnosis; not a public API |
+
+History transfer (`make export-history` / `make import-history`) moves only
+`travelcanary_marts.country_travel_risk_history`. See
+[History transfer policy](#history-transfer-policy) and
+[Preserve history across rebuilds](../guides/preserve-history-across-rebuilds.md).
+
 ## Guard policy
 
 - Static row floor: 80% of a verified healthy complete-catalog live audit.
@@ -100,4 +115,7 @@ columns against `PUBLIC_MART_COLUMNS` and inserts rows whose unique key
 `(destination_iso3, issuing_government, snapshot_date)` is absent. Existing
 warehouse rows win: a same-day corrected row is never displaced by an older
 export. Change and trend marts regenerate from restored history on the next
-dbt build.
+dbt build. Operator steps:
+[Preserve history across rebuilds](../guides/preserve-history-across-rebuilds.md).
+Post-import verification SQL:
+[Query recipes](../guides/query-recipes.md#verify-history-import).

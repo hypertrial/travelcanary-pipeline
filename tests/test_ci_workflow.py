@@ -13,10 +13,11 @@ def test_ci_workflow_is_one_bounded_offline_runner():
 
     assert set(workflow["jobs"]) == {"fast-gate"}
     assert workflow["jobs"]["fast-gate"]["timeout-minutes"] == 5
-    assert "uv run make lint test dbt-parse docs-build" in workflow_text
+    assert "uv run make lint test dbt-parse docs-build docs-structure" in workflow_text
     assert 'TRAVELCANARY_DAILY_SCHEDULE_ENABLED: "false"' in workflow_text
     assert "live-smoke" not in workflow_text
     assert "source-audit" not in workflow_text
+    assert "docs-render" not in workflow_text
     assert "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0" in workflow_text
     assert sorted(path.name for path in workflow_path.parent.glob("*.yml")) == [
         "ci.yml",
@@ -24,18 +25,24 @@ def test_ci_workflow_is_one_bounded_offline_runner():
     ]
 
 
-def test_docs_workflow_publishes_on_version_tags_only():
+def test_docs_workflow_publishes_on_main_tags_and_dispatch():
     workflow_path = ROOT / ".github" / "workflows" / "docs.yml"
     workflow = yaml.safe_load(workflow_path.read_text())
     workflow_text = workflow_path.read_text()
     trigger = workflow.get("on", workflow.get(True))
+    assert trigger["push"]["branches"] == ["main"]
     assert trigger["push"]["tags"] == ["v*"]
+    assert "workflow_dispatch" in trigger
     assert "pull_request" not in trigger
     assert workflow["permissions"]["contents"] == "write"
     assert "mkdocs gh-deploy" in workflow_text
     assert workflow["jobs"]["publish"]["timeout-minutes"] == 5
     assert set(workflow["jobs"]) == {"publish", "release-assets"}
     assert workflow["jobs"]["release-assets"]["timeout-minutes"] == 10
+    assert (
+        workflow["jobs"]["release-assets"]["if"]
+        == "startsWith(github.ref, 'refs/tags/v')"
+    )
     assert "make demo" in workflow_text
     assert "export-marts" in workflow_text
     assert "gh release upload" in workflow_text

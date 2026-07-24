@@ -21,6 +21,32 @@ flowchart LR
   models --> obs
 ```
 
+## Publication boundary
+
+Ingest writers, history import, and dbt share one fail-fast sibling
+`writer.lock`. dbt never mutates the primary file in place: it clones to a
+same-directory candidate, builds and tests there, then promotes only on full
+success. A candidate failure deletes the candidate and leaves accepted raw plus
+the previously published marts in the primary warehouse.
+
+```mermaid
+flowchart TB
+  ingest["Required ingest\n(official + GDELT)"]
+  lock["Acquire writer.lock"]
+  raw["Accepted raw + ledger\nin primary warehouse"]
+  candidate["Clone to same-directory\ncandidate DuckDB"]
+  dbt["dbt build + tests\non candidate"]
+  promote["Checkpoint + atomic\nreplace primary"]
+  fail["Delete candidate;\nprimary marts unchanged"]
+
+  ingest --> lock
+  lock --> raw
+  raw --> candidate
+  candidate --> dbt
+  dbt -->|success| promote
+  dbt -->|failure| fail
+```
+
 ## Layers
 
 1. **Fetch and parse.** Each attempt gets a UUID `source_run_id`. Official

@@ -18,7 +18,7 @@ def test_ci_workflow_is_one_bounded_offline_runner():
     assert "live-smoke" not in workflow_text
     assert "source-audit" not in workflow_text
     assert "docs-render" not in workflow_text
-    assert "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0" in workflow_text
+    assert "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" in workflow_text
     assert sorted(path.name for path in workflow_path.parent.glob("*.yml")) == [
         "ci.yml",
         "docs.yml",

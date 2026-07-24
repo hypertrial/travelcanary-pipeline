@@ -25,8 +25,9 @@ No. The daily schedule is stopped unless
 ## How do I keep history across a warehouse rebuild?
 
 Use `make export-history` before deleting the warehouse, then
-`make import-history` after the clean rebuild. Existing warehouse rows win on
-import.
+`make import-history` after the clean rebuild, then `make dbt-build` so change
+and trend marts regenerate from restored history. Existing warehouse rows win
+on import.
 
 ## Does GitHub Actions run live audits?
 

@@ -16,7 +16,8 @@ advice or execution orders.
    Warehouse layouts may break between releases; use history export/import
    rather than compatibility aliases.
 3. **Prefer documented exports** — `make export-marts` and
-   `make export-history` (see [Export public marts](../guides/export-public-marts.md)).
+   `make export-history` (see [Export public marts](../guides/export-public-marts.md)
+   and [Preserve history across rebuilds](../guides/preserve-history-across-rebuilds.md)).
 4. **No score surface** — do not invent a TravelCanary recommendation from
    overview fields; health flags describe pipeline usability only.
 5. **No hosted API** — this repository does not operate a travel-risk API.

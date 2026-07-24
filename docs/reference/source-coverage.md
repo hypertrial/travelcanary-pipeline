@@ -16,6 +16,7 @@ Regional and compound identifiers remain observable raw records but are excluded
 
 ## GDELT
 
+GDELT is a required sixth source alongside the five official catalogs.
 TravelCanary uses the complete GDELT 1 daily Events export because it is a compact local-first source with stable daily files and the fields needed for country activity context. At least 95% of non-empty action-country codes must map to ISO3; coverage below 98% is visible as a warning.
 
 The marts expose one- and seven-day event counts, material-conflict counts/shares, weighted average Goldstein scale, average tone, latest event date, freshness, root event type counts, and mention volume. These describe media-reported activity and are not an independent safety recommendation. GDELT 2 support is deferred.

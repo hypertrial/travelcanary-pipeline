@@ -38,6 +38,7 @@ flowchart LR
   signals["country_risk_signals"]
   changes["country_advisory_changes"]
   themes["country_advisory_themes"]
+  trends["country_risk_trends"]
   gdelt["country_gdelt_event_types"]
   alerts["country_context_alerts"]
   quality["source_data_quality"]
@@ -47,6 +48,7 @@ flowchart LR
   overview --> signals
   overview --> changes
   overview --> themes
+  overview --> trends
   overview --> gdelt
   overview --> alerts
   overview --> quality

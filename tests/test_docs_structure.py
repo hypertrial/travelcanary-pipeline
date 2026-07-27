@@ -205,6 +205,7 @@ def test_strict_configuration_and_costguard_prerequisite_are_documented():
     assert "detected binary" in documentation
     assert "automatically" in documentation
     assert "Blank `DUCKDB_PATH` and `DUCKDB_NAME`" in documentation
+    assert "relative paths resolve under the repository root" in documentation
     assert "must be a file" in documentation
 
 

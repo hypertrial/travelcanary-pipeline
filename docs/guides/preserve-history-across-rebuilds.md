@@ -27,9 +27,11 @@ imported rows; re-import after any full refresh.
 
 A clean rebuild may still be required when schemas change. Before deleting the
 operator warehouse, run `uv run make export-history`. After the rebuild and
-first successful ingest/dbt build, run `import-history` and rebuild dbt so
-change and trend marts regenerate from the restored history. Whole-file
-backups remain valid but are no longer the only supported history bridge.
+first successful ingest/dbt build, run
+`make import-history HISTORY_PATH=exports/country_travel_risk_history.parquet`
+and rebuild dbt so change and trend marts regenerate from the restored history.
+Whole-file backups remain valid but are no longer the only supported history
+bridge.
 On memory-constrained hosts, set `DUCKDB_MEMORY_LIMIT` before the first live
 GDELT sync.
 

@@ -9,7 +9,6 @@ import duckdb
 from travelcanary_pipeline.ingestion.source_contracts import load_source_contracts
 from travelcanary_pipeline.public_contracts import (
     LIVE_NONEMPTY_PUBLIC_MART_RELATIONS,
-    LIVE_PUBLIC_MART_RELATIONS,
     LIVE_PUBLIC_MARTS,
     PUBLIC_MART_COLUMNS,
 )
@@ -57,7 +56,8 @@ def validate_live_warehouse(
             if accepted_runs == 0:
                 errors.append(f"{source} has no accepted source_sync_runs entry")
 
-        for mart, relation in zip(LIVE_PUBLIC_MARTS, LIVE_PUBLIC_MART_RELATIONS):
+        for mart in LIVE_PUBLIC_MARTS:
+            relation = f"travelcanary_marts.{mart}"
             try:
                 actual = _columns(conn, relation)
             except duckdb.Error as exc:
@@ -71,31 +71,45 @@ def validate_live_warehouse(
                 )
 
         for mart in LIVE_NONEMPTY_PUBLIC_MART_RELATIONS:
-            rows = _single_int(conn, f"select count(*) from {mart}")
+            try:
+                rows = _single_int(conn, f"select count(*) from {mart}")
+            except duckdb.Error as exc:
+                errors.append(f"{mart} is missing or unreadable: {exc}")
+                continue
             if rows == 0:
                 errors.append(f"{mart} is empty")
 
-        gdelt_context_rows = _single_int(
-            conn,
-            """
-            select count(*)
-            from travelcanary_marts.country_risk_signals
-            where coalesce(gdelt_event_count_1d, 0) > 0
-               or coalesce(gdelt_event_count_7d, 0) > 0
-            """,
-        )
-        if gdelt_context_rows == 0:
-            errors.append("country_risk_signals has no non-zero GDELT context")
+        gdelt_context_rows = 0
+        try:
+            gdelt_context_rows = _single_int(
+                conn,
+                """
+                select count(*)
+                from travelcanary_marts.country_risk_signals
+                where coalesce(gdelt_event_count_1d, 0) > 0
+                   or coalesce(gdelt_event_count_7d, 0) > 0
+                """,
+            )
+            if gdelt_context_rows == 0:
+                errors.append("country_risk_signals has no non-zero GDELT context")
+        except duckdb.Error as exc:
+            errors.append(
+                f"travelcanary_marts.country_risk_signals GDELT check failed: {exc}"
+            )
 
-        unhealthy_required = conn.execute(
-            """
-            select source, health_status
-            from travelcanary_observability.source_health
-            where role = 'required'
-              and health_status in ('error', 'rejected', 'stale', 'unavailable')
-            order by source
-            """
-        ).fetchall()
+        try:
+            unhealthy_required = conn.execute(
+                """
+                select source, health_status
+                from travelcanary_observability.source_health
+                where role = 'required'
+                  and health_status in ('error', 'rejected', 'stale', 'unavailable')
+                order by source
+                """
+            ).fetchall()
+        except duckdb.Error as exc:
+            errors.append(f"source_health is missing or unreadable: {exc}")
+            unhealthy_required = []
         if unhealthy_required:
             formatted = ", ".join(
                 f"{source}={status}" for source, status in unhealthy_required
@@ -106,7 +120,7 @@ def validate_live_warehouse(
             raise LiveWarehouseValidationError("; ".join(errors))
         return {
             "required_accepted_sources": len(required_sources),
-            "public_marts_checked": len(LIVE_PUBLIC_MART_RELATIONS),
+            "public_marts_checked": len(LIVE_PUBLIC_MARTS),
             "gdelt_context_rows": gdelt_context_rows,
         }
     finally:

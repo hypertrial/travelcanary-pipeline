@@ -10,7 +10,7 @@
 | `destination_iso3` | Canonical ISO3 country key in public marts |
 | Required source | Each of the six sources (five official catalogs + GDELT); failure of any stops the full pipeline |
 | Overview health | Pipeline usability fields on `country_risk_overview`, not destination safety |
-| History bridge | `export-history` / `import-history` for `country_travel_risk_history` |
+| History bridge | `export-history` / `import-history HISTORY_PATH=...` for `country_travel_risk_history` |
 
 ## See Also
 

@@ -71,7 +71,7 @@ def test_demo_ui_opens_the_disposable_demo_warehouse():
 def test_duckdb_ui_resolves_warehouse_through_settings():
     output = _make_dry_run("duckdb-ui")
     assert "resolve_duckdb_path" in output
-    assert 'duckdb "$db_path" -ui' in output or 'duckdb "$db_path" -ui' in output
+    assert 'duckdb "$db_path" -ui' in output
 
 
 def test_export_demo_marts_targets_the_demo_warehouse():

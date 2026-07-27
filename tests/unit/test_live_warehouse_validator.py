@@ -162,6 +162,20 @@ def test_validate_live_warehouse_rejects_column_drift():
         conn.close()
 
 
+def test_validate_live_warehouse_collects_missing_mart_errors():
+    conn = get_persistent_connection()
+    try:
+        _seed_validator_relations(conn)
+        conn.execute("drop table travelcanary_marts.country_travel_risk")
+
+        with pytest.raises(
+            LiveWarehouseValidationError, match="country_travel_risk is missing"
+        ):
+            validate_live_warehouse(conn)
+    finally:
+        conn.close()
+
+
 def test_validate_live_warehouse_rejects_required_source_health_problem():
     conn = get_persistent_connection()
     try:

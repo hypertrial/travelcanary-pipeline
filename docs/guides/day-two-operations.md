@@ -11,7 +11,7 @@ disabled until materialization and observability look healthy.
    writers acquire `<warehouse>.writer.lock` without waiting.
 3. Inspect `travelcanary_observability.source_health` and related gap models
    after each successful run.
-4. All timestamps, freshness windows, and snapshot dates use UTC.
+4. Snapshot dates, freshness windows, and warehouse session clocks use UTC.
 
 ## Batch outcomes
 

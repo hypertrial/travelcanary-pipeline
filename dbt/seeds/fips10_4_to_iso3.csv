@@ -29,6 +29,7 @@ BN,BEN,Benin
 BD,BMU,Bermuda
 BT,BTN,Bhutan
 BL,BOL,Bolivia
+A1,BES,Bonaire Sint Eustatius and Saba
 BK,BIH,Bosnia-Herzegovina
 BC,BWA,Botswana
 BV,BVT,Bouvet Island
@@ -60,6 +61,7 @@ CS,CRI,Costa Rica
 IV,CIV,Cote dIvoire
 HR,HRV,Croatia
 CU,CUB,Cuba
+UC,CUW,Curaçao
 CY,CYP,Cyprus
 EZ,CZE,Czech Republic
 CG,COD,Democratic Republic of the Congo
@@ -72,7 +74,6 @@ TT,TLS,East Timor
 EC,ECU,Ecuador
 EG,EGY,Egypt
 ES,SLV,El Salvador
-GV,GNQ,Equatorial Guinea
 EK,GNQ,Equatorial Guinea
 ER,ERI,Eritrea
 EN,EST,Estonia
@@ -84,6 +85,7 @@ FO,FRO,Faroe Islands
 FJ,FJI,Fiji
 FI,FIN,Finland
 FR,FRA,France
+A2,GUF,French Guiana
 FG,GUF,French Guiana
 FP,PYF,French Polynesia
 FS,ATF,French Southern and Antarctic Lands
@@ -102,6 +104,7 @@ GP,GLP,Guadeloupe
 GQ,GUM,Guam
 GT,GTM,Guatemala
 GK,GGY,Guernsey
+GV,GIN,Guinea
 PU,GNB,Guinea-Bissau
 GY,GUY,Guyana
 HA,HTI,Haiti
@@ -215,6 +218,8 @@ RI,SRB,Serbia
 SE,SYC,Seychelles
 SL,SLE,Sierra Leone
 SN,SGP,Singapore
+NN,SXM,Sint Maarten
+LO,SVK,Slovakia
 SI,SVN,Slovenia
 BP,SLB,Solomon Islands
 SO,SOM,Somalia

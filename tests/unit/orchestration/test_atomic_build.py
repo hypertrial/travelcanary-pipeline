@@ -9,6 +9,8 @@ import pytest
 
 from travelcanary_pipeline.storage.duckdb.atomic_build import (
     _candidate_prefix,
+    _checkpoint,
+    _is_open_connection_conflict,
     atomic_dbt_warehouse,
 )
 from travelcanary_pipeline.storage.duckdb.writer_lock import (
@@ -114,7 +116,7 @@ def test_stale_cleanup_is_scoped_to_the_exact_warehouse_name(tmp_path):
     assert other_candidate.read_text() == "other warehouse"
 
 
-def test_writer_lock_rejects_contention_without_blocking_readers(tmp_path):
+def test_writer_lock_rejects_overlapping_writers(tmp_path):
     primary = tmp_path / "warehouse.duckdb"
     _warehouse(primary)
 
@@ -125,6 +127,45 @@ def test_writer_lock_rejects_contention_without_blocking_readers(tmp_path):
                 pass
 
     assert writer_lock_path(primary).is_file()
+
+
+def test_atomic_build_fails_when_read_only_session_is_open(tmp_path, monkeypatch):
+    primary = tmp_path / "warehouse.duckdb"
+    _warehouse(primary)
+    monkeypatch.setenv("DUCKDB_PATH", str(primary))
+    reader = duckdb.connect(str(primary), read_only=True)
+    try:
+        with pytest.raises(RuntimeError, match="another DuckDB session is open"):
+            with atomic_dbt_warehouse(primary):
+                pass
+    finally:
+        reader.close()
+
+    with atomic_dbt_warehouse(primary):
+        pass
+    assert _value(primary) == "old"
+
+
+def test_open_connection_conflict_helper_and_non_conflict_errors(tmp_path, monkeypatch):
+    assert _is_open_connection_conflict(RuntimeError("existing connections")) is False
+    assert _is_open_connection_conflict(
+        duckdb.Error(
+            "Can't open with a different configuration than existing connections"
+        )
+    )
+
+    primary = tmp_path / "warehouse.duckdb"
+    _warehouse(primary)
+
+    def boom(_path):
+        raise duckdb.IOException("disk full")
+
+    monkeypatch.setattr(
+        "travelcanary_pipeline.storage.duckdb.atomic_build.duckdb.connect",
+        boom,
+    )
+    with pytest.raises(duckdb.IOException, match="disk full"):
+        _checkpoint(primary)
 
 
 def test_writer_lock_is_released_when_process_exits(tmp_path):

@@ -170,14 +170,29 @@ def test_offline_contract_commands_are_documented_and_implemented():
 def test_export_and_history_commands_are_documented_and_implemented():
     documentation = _all_docs()
     makefile = (REPO_ROOT / "Makefile").read_text(encoding="utf-8")
-    for command in ("export-marts", "export-history", "import-history"):
+    for command in (
+        "export-marts",
+        "export-demo-marts",
+        "export-history",
+        "import-history",
+    ):
         assert f"{command}:" in makefile
         assert command in documentation
     assert "existing warehouse rows win" in documentation.lower()
     assert "EXPORT_DIR" in documentation
     assert "make export-marts" in documentation
+    assert "make export-demo-marts" in documentation
     assert "make export-history" in documentation
     assert "make import-history" in documentation
+    for line in documentation.splitlines():
+        stripped = line.strip()
+        if "make import-history" not in stripped:
+            continue
+        assert "HISTORY_PATH=" in stripped, stripped
+    export_guide = (REPO_ROOT / "docs/guides/export-public-marts.md").read_text(
+        encoding="utf-8"
+    )
+    assert "export-demo-marts" in export_guide
 
 
 def test_strict_configuration_and_costguard_prerequisite_are_documented():

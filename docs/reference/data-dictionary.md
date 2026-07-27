@@ -42,7 +42,7 @@
 | Intended use | Indefinite corrected daily history |
 | Grain | destination ISO3, issuer, snapshot date |
 | Recommended filters | Same-day reruns replace the current UTC snapshot |
-| Common mistakes | Expecting raw tables to retain multi-day history; assuming `make import-history` alone refreshes change/trend marts without a following `make dbt-build` |
+| Common mistakes | Expecting raw tables to retain multi-day history; assuming `make import-history HISTORY_PATH=...` alone refreshes change/trend marts without a following `make dbt-build` |
 
 ## `country_risk_signals`
 

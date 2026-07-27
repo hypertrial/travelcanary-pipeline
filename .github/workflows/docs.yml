@@ -47,7 +47,7 @@ jobs:
         run: |
           unset DBT_PROFILES_DIR
           uv run make demo
-          DUCKDB_PATH=.cache/travelcanary_demo.duckdb uv run make export-marts
+          uv run make export-demo-marts
       - name: Upload demo Parquet exports to the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}

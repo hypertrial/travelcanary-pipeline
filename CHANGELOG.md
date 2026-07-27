@@ -4,6 +4,20 @@ All notable changes are recorded here.
 
 ## Unreleased
 
+- Corrected GDELT FIPS→ISO3 mapping for Guinea (`GV→GIN`) and added missing
+  codes used by US/GDELT geography (`LO`, `NN`, `UC`, `A1`, `A2`).
+- Forced DuckDB/dbt sessions to `TimeZone=UTC` so snapshot dates and freshness
+  windows match the UTC warehouse contract on non-UTC hosts.
+- US State BES territory collapse now prefers the higher official Level before
+  publish date when multiple pages share one country-level advisory id.
+- Relative `DUCKDB_PATH` values resolve under the repository root like
+  `DUCKDB_NAME`; `make duckdb-ui` opens the same resolved warehouse path.
+- Atomic dbt publish fails with an actionable error when any DuckDB session
+  still holds the warehouse, and live-smoke validation asserts public mart
+  column contracts.
+- Added `make export-demo-marts` for demo Parquet rebuilds and fixed
+  getting-started/FAQ `import-history` examples to require `HISTORY_PATH`.
+
 - Reorganized documentation to the Hypertrial pipeline IA (Audiences, Get
   started, Guides, Reference, Concepts, Development), with audience hubs, a
   concept sextet, query recipes, a data dictionary page, and Material site

@@ -43,7 +43,7 @@ over ad-hoc script flags unless diagnosing a source. Every non-private
 | When to run | When shipping portable mart snapshots for offline consumers |
 | When not | Not a history bridge across rebuilds |
 | Key flags | `--output-dir` (default `EXPORT_DIR`) |
-| Make | `make export-marts` |
+| Make | `make export-marts`; demo rebuilds use `make export-demo-marts` |
 
 ## `import_history.py`
 

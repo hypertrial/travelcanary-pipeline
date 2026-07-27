@@ -18,6 +18,19 @@ delete the lock file to interrupt an active process; the operating-system lock,
 not the file's presence, determines ownership. Stop Dagster and open DuckDB UI
 sessions if they hold a write connection.
 
+## Atomic dbt publish blocked by open DuckDB sessions
+
+**Symptom:** `make dbt-build` or Dagster dbt fails with an error that the
+warehouse cannot be checkpointed while another DuckDB session is open.
+
+**Diagnostic:** List notebook kernels, `duckdb` UI windows, and Python
+processes that still hold `read_only` or write connections to the warehouse
+file.
+
+**Fix:** Close every connection to that DuckDB file, then retry. `writer.lock`
+serializes TravelCanary writers only; DuckDB itself still requires exclusive
+access for the atomic publish checkpoint.
+
 ## Required source reject before dbt
 
 **Symptom:** Full pipeline stops before dbt. Existing marts stay unchanged.
@@ -75,7 +88,7 @@ where previous_snapshot_date is not null;
 ```
 
 **Fix:** Import alone does not rebuild insight marts. Run `uv run make dbt-build`
-after `make import-history`. Re-check with the
+after `make import-history HISTORY_PATH=...`. Re-check with the
 [Verify history import](query-recipes.md#verify-history-import) recipes. A later
 `--full-refresh` of the history model wipes imported rows until you re-import.
 

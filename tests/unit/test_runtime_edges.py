@@ -208,6 +208,7 @@ def test_duckdb_memory_limit_setting_and_session_config(tmp_path, monkeypatch):
     warehouse = tmp_path / "memory.duckdb"
     conn = connection._connect_duckdb(warehouse)
     try:
+        assert conn.execute("SELECT current_setting('TimeZone')").fetchone()[0] == "UTC"
         limit = conn.execute("SELECT current_setting('memory_limit')").fetchone()[0]
         # DuckDB reports decimal MB as binary MiB (256MB ~= 244.1 MiB).
         assert "MiB" in limit or "MB" in limit.upper()
@@ -223,6 +224,10 @@ def test_duckdb_memory_limit_setting_and_session_config(tmp_path, monkeypatch):
 
     read_only = connection._connect_duckdb(warehouse, read_only=True)
     try:
+        assert (
+            read_only.execute("SELECT current_setting('TimeZone')").fetchone()[0]
+            == "UTC"
+        )
         limit = read_only.execute("SELECT current_setting('memory_limit')").fetchone()[
             0
         ]
@@ -233,6 +238,22 @@ def test_duckdb_memory_limit_setting_and_session_config(tmp_path, monkeypatch):
 
     monkeypatch.delenv("DUCKDB_MEMORY_LIMIT", raising=False)
     importlib.reload(settings_warehouse)
+
+
+def test_relative_duckdb_path_and_name_resolve_under_base_dir(tmp_path, monkeypatch):
+    relative = ".cache/path-resolve.duckdb"
+    expected = (settings_warehouse.BASE_DIR / relative).resolve()
+    monkeypatch.chdir(tmp_path)
+
+    monkeypatch.delenv("DUCKDB_NAME", raising=False)
+    monkeypatch.setenv("DUCKDB_PATH", relative)
+    reloaded = importlib.reload(settings_warehouse)
+    assert reloaded.resolve_duckdb_path() == expected
+
+    monkeypatch.delenv("DUCKDB_PATH", raising=False)
+    monkeypatch.setenv("DUCKDB_NAME", relative)
+    reloaded = importlib.reload(settings_warehouse)
+    assert reloaded.resolve_duckdb_path() == expected
 
 
 def test_settings_warehouse_env_profiles_and_dbt_resolution(tmp_path, monkeypatch):

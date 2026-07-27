@@ -32,9 +32,26 @@ def _remove_artifacts(path: Path) -> None:
         artifact.unlink(missing_ok=True)
 
 
+def _is_open_connection_conflict(exc: BaseException) -> bool:
+    if not isinstance(exc, duckdb.Error):
+        return False
+    msg = str(exc).lower()
+    return "existing connections" in msg or "different configuration" in msg
+
+
 def _checkpoint(path: Path) -> None:
-    conn = duckdb.connect(str(path))
     try:
+        conn = duckdb.connect(str(path))
+    except duckdb.Error as exc:
+        if _is_open_connection_conflict(exc):
+            raise RuntimeError(
+                f"Cannot checkpoint warehouse {path} while another DuckDB "
+                "session is open. Close notebooks, duckdb UI, and read_only "
+                "connections, then retry."
+            ) from exc
+        raise
+    try:
+        conn.execute("SET TimeZone = 'UTC'")
         conn.execute("CHECKPOINT")
     finally:
         conn.close()

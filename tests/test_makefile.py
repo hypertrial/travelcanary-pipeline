@@ -62,9 +62,23 @@ def test_demo_reuses_seeded_build_at_disposable_path():
 
 def test_demo_ui_opens_the_disposable_demo_warehouse():
     output = _make_dry_run("demo-ui")
-    assert 'duckdb "' in output
-    assert ".cache/travelcanary_demo.duckdb" in output
+    assert "resolve_duckdb_path" in output
+    assert 'DUCKDB_NAME=".cache/travelcanary_demo.duckdb"' in output
+    assert "duckdb" in output
     assert " -ui" in output
+
+
+def test_duckdb_ui_resolves_warehouse_through_settings():
+    output = _make_dry_run("duckdb-ui")
+    assert "resolve_duckdb_path" in output
+    assert 'duckdb "$db_path" -ui' in output or 'duckdb "$db_path" -ui' in output
+
+
+def test_export_demo_marts_targets_the_demo_warehouse():
+    output = _make_dry_run("export-demo-marts")
+    assert ".cache/travelcanary_demo.duckdb" in output
+    assert "scripts/export_public_marts.py" in output
+    assert "export_public_marts.py" in _make_dry_run("export-marts")
 
 
 def test_dbt_build_and_test_use_the_atomic_wrapper_commands():

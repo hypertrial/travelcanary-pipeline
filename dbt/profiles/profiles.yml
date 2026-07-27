@@ -6,3 +6,5 @@ travelcanary:
       path: "{{ env_var('DUCKDB_PATH', 'travelcanary.duckdb') }}"
       schema: dbt
       threads: 4
+      settings:
+        TimeZone: UTC

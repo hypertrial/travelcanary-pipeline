@@ -62,6 +62,7 @@ def is_duckdb_lock_io_error(exc: BaseException) -> bool:
 def _configure_duckdb_session(
     conn: duckdb.DuckDBPyConnection, *, read_only: bool = False
 ) -> duckdb.DuckDBPyConnection:
+    conn.execute("SET TimeZone = 'UTC'")
     memory_limit = _settings.resolve_duckdb_memory_limit()
     if memory_limit:
         conn.execute("SET memory_limit = ?", [memory_limit])

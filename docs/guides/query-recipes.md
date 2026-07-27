@@ -172,7 +172,7 @@ limit 30;
 
 ## Verify history import
 
-After `make import-history`, run `make dbt-build` so change and trend marts
+After `make import-history HISTORY_PATH=...`, run `make dbt-build` so change and trend marts
 regenerate from restored history. Then verify history depth and that trends
 exist:
 

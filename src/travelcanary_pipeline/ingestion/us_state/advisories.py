@@ -128,14 +128,21 @@ def _published_sort_key(value: str | None) -> float:
         return float("-inf")
 
 
-def _us_row_rank(row: AdvisoryRow) -> tuple[float, int, str]:
+def _us_row_rank(row: AdvisoryRow) -> tuple[int, float, int, str]:
+    level = row.get("native_level")
+    level_num = int(level) if isinstance(level, str) and level.isdigit() else -1
     url = str(row.get("source_url") or "")
     prefers_classic = 0 if "tsg_aem" in url else 1
-    return (_published_sort_key(row.get("published_at")), prefers_classic, url)
+    return (
+        level_num,
+        _published_sort_key(row.get("published_at")),
+        prefers_classic,
+        url,
+    )
 
 
 def dedupe_us_advisory_rows(rows: list[AdvisoryRow]) -> list[AdvisoryRow]:
-    """Keep one row per ``advisory_id``, preferring newer classic catalog URLs."""
+    """Keep one row per ``advisory_id``, preferring higher Level then newer classic URLs."""
     chosen: dict[str, AdvisoryRow] = {}
     order: list[str] = []
     for row in rows:

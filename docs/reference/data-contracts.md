@@ -16,7 +16,7 @@
 | Staging / intermediate | `travelcanary_staging.*`, intermediates | Rebuild inputs; not an API |
 | Observability | `travelcanary_observability.*` | Gap and health diagnosis; not a public API |
 
-History transfer (`make export-history` / `make import-history`) moves only
+History transfer (`make export-history` / `make import-history HISTORY_PATH=...`) moves only
 `travelcanary_marts.country_travel_risk_history`. See
 [History transfer policy](#history-transfer-policy) and
 [Preserve history across rebuilds](../guides/preserve-history-across-rebuilds.md).
@@ -109,7 +109,7 @@ source URLs remain in their dedicated marts.
 
 ## History transfer policy
 
-`make export-history` / `make import-history` transfer only
+`make export-history` / `make import-history HISTORY_PATH=...` transfer only
 `travelcanary_marts.country_travel_risk_history`. Import validates Parquet
 columns against `PUBLIC_MART_COLUMNS` and inserts rows whose unique key
 `(destination_iso3, issuing_government, snapshot_date)` is absent. Existing

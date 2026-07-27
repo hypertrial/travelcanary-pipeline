@@ -66,6 +66,38 @@ def test_parse_us_advisories_dedupes_duplicate_advisory_ids_preferring_newer_cla
     assert rows[1]["destination_iso3"] == "BES"
 
 
+def test_parse_us_advisories_prefers_higher_level_when_bes_pages_collapse():
+    rows = parse_us_advisories(
+        [
+            {
+                "Title": "Bonaire - Level 1: Exercise Normal Precautions",
+                "Category": [],
+                "Link": (
+                    "https://travel.state.gov/content/travel/en/traveladvisories/"
+                    "traveladvisories/bonaire-travel-advisory.html"
+                ),
+                "Updated": "2026-07-20T12:00:00+00:00",
+            },
+            {
+                "Title": "Saba - Level 4: Do Not Travel",
+                "Category": [],
+                "Link": (
+                    "https://travel.state.gov/content/travel/en/traveladvisories/"
+                    "traveladvisories/saba-travel-advisory.html"
+                ),
+                "Updated": "2026-07-01T12:00:00+00:00",
+            },
+        ],
+        ingested_at="2026-07-01T00:00:00+00:00",
+    )
+
+    assert len(rows) == 1
+    assert rows[0]["advisory_id"] == "us_state:BQ"
+    assert rows[0]["destination_iso3"] == "BES"
+    assert rows[0]["native_level"] == "4"
+    assert rows[0]["destination_name"] == "Saba"
+
+
 def test_parse_us_advisories_prefers_title_when_fips_tag_conflicts():
     rows = parse_us_advisories(
         [

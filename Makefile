@@ -1,4 +1,4 @@
-.PHONY: dagster-dev duckdb-ui demo demo-ui _build-seeded-warehouse dbt-build dbt-build-ci dbt-parse dbt-test dbt-unit golden-dbt contract-http docs-serve docs-build docs-structure docs-render docs-test docs-recipe-smoke docs-check source-audit live-smoke export-marts export-history import-history check-costguard-version costguard format lint test test-cov coverage coverage-erase coverage-report unit-ingest unit-orchestration integration-dbt integration-dbt-cov integration-dagster integration-dagster-cov check-secrets clean-local-artifacts
+.PHONY: dagster-dev duckdb-ui demo demo-ui _build-seeded-warehouse dbt-build dbt-build-ci dbt-parse dbt-test dbt-unit golden-dbt contract-http docs-serve docs-build docs-structure docs-render docs-test docs-recipe-smoke docs-check source-audit live-smoke export-marts export-demo-marts export-history import-history check-costguard-version costguard format lint test test-cov coverage coverage-erase coverage-report unit-ingest unit-orchestration integration-dbt integration-dbt-cov integration-dagster integration-dagster-cov check-secrets clean-local-artifacts
 
 REPO_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 override PYTHON := $(shell if test -x "$(REPO_ROOT)/.venv/bin/python"; then printf '%s' "$(REPO_ROOT)/.venv/bin/python"; else printf 'python3'; fi)
@@ -20,13 +20,14 @@ COV_APPEND_ARGS := --cov=travelcanary_pipeline --cov-branch --cov-append
 
 duckdb-ui:
 	@command -v duckdb >/dev/null 2>&1 || { printf '%s\n' 'duckdb CLI is required; install it and ensure it is on PATH.' >&2; exit 1; }
-	duckdb "$(REPO_ROOT)/$(DUCKDB_NAME)" -ui
+	@db_path="$$(cd "$(REPO_ROOT)" && "$(PYTHON)" -c 'from travelcanary_pipeline.config.settings_warehouse import resolve_duckdb_path; print(resolve_duckdb_path())')" && \
+		duckdb "$$db_path" -ui
 
 demo: SEEDED_DUCKDB_PATH := $(DEMO_DUCKDB_PATH)
 demo: _build-seeded-warehouse
 
 demo-ui: demo
-	$(MAKE) duckdb-ui DUCKDB_NAME="$(DEMO_DUCKDB_NAME)"
+	$(MAKE) duckdb-ui DUCKDB_NAME="$(DEMO_DUCKDB_NAME)" DUCKDB_PATH=
 
 dagster-dev:
 	mkdir -p "$(REPO_ROOT)/.dagster_home"
@@ -96,6 +97,9 @@ live-smoke:
 
 export-marts:
 	$(RUN_IN_REPO) "$(PYTHON)" scripts/export_public_marts.py
+
+export-demo-marts:
+	$(RUN_IN_REPO) DUCKDB_PATH="$(DEMO_DUCKDB_PATH)" "$(PYTHON)" scripts/export_public_marts.py
 
 export-history:
 	$(RUN_IN_REPO) "$(PYTHON)" scripts/export_history.py

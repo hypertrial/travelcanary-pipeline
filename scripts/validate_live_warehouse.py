@@ -10,6 +10,8 @@ from travelcanary_pipeline.ingestion.source_contracts import load_source_contrac
 from travelcanary_pipeline.public_contracts import (
     LIVE_NONEMPTY_PUBLIC_MART_RELATIONS,
     LIVE_PUBLIC_MART_RELATIONS,
+    LIVE_PUBLIC_MARTS,
+    PUBLIC_MART_COLUMNS,
 )
 from travelcanary_pipeline.storage.duckdb.connection import get_persistent_connection
 
@@ -23,6 +25,10 @@ def _single_int(
 ) -> int:
     row = conn.execute(sql, parameters or []).fetchone()
     return int(row[0] if row else 0)
+
+
+def _columns(conn: duckdb.DuckDBPyConnection, relation: str) -> list[str]:
+    return [row[0] for row in conn.execute(f"describe {relation}").fetchall()]
 
 
 def validate_live_warehouse(
@@ -51,8 +57,18 @@ def validate_live_warehouse(
             if accepted_runs == 0:
                 errors.append(f"{source} has no accepted source_sync_runs entry")
 
-        for mart in LIVE_PUBLIC_MART_RELATIONS:
-            _single_int(conn, f"select count(*) from {mart}")
+        for mart, relation in zip(LIVE_PUBLIC_MARTS, LIVE_PUBLIC_MART_RELATIONS):
+            try:
+                actual = _columns(conn, relation)
+            except duckdb.Error as exc:
+                errors.append(f"{relation} is missing or unreadable: {exc}")
+                continue
+            expected = PUBLIC_MART_COLUMNS[mart]
+            if actual != expected:
+                errors.append(
+                    f"{relation} columns drifted from public contract: "
+                    f"expected {expected}, got {actual}"
+                )
 
         for mart in LIVE_NONEMPTY_PUBLIC_MART_RELATIONS:
             rows = _single_int(conn, f"select count(*) from {mart}")

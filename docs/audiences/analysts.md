@@ -16,9 +16,11 @@ or travel recommendation.
 
     The default path is `travelcanary.duckdb` in the repository root. Demo
     warehouses live at `.cache/travelcanary_demo.duckdb`. If `.env` sets
-    `DUCKDB_PATH`, open that file instead. Prefer
-    `duckdb.connect(..., read_only=True)` in notebooks so you do not compete
-    with a writer.
+    `DUCKDB_PATH`, open that file instead (`make duckdb-ui` honors the same
+    resolved path). Prefer `duckdb.connect(..., read_only=True)` in notebooks
+    so you do not open a write session. Close every DuckDB session before
+    `make dbt-build` or Dagster dbt publish; atomic publish checkpoints the
+    warehouse and cannot proceed while any connection remains open.
 
     Continue with [Query the warehouse](../guides/query-the-warehouse.md).
 

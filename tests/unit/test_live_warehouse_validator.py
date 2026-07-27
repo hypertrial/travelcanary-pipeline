@@ -7,7 +7,90 @@ from scripts.validate_live_warehouse import (
 )
 
 from travelcanary_pipeline.ingestion.source_contracts import load_source_contracts
+from travelcanary_pipeline.public_contracts import (
+    LIVE_NONEMPTY_PUBLIC_MARTS,
+    LIVE_PUBLIC_MARTS,
+    PUBLIC_MART_COLUMNS,
+)
 from travelcanary_pipeline.storage.duckdb.connection import get_persistent_connection
+
+_INTEGER_COLUMNS = {
+    "gdelt_event_count_1d",
+    "gdelt_event_count_7d",
+    "gdelt_material_conflict_events_1d",
+    "gdelt_material_conflict_events_7d",
+    "reporting_issuer_count",
+    "normalized_ordinal",
+    "normalized_ordinal_min",
+    "normalized_ordinal_max",
+    "normalized_ordinal_range",
+    "changed_issuer_count",
+    "worsening_issuer_count",
+    "improving_issuer_count",
+    "matched_theme_count",
+    "matched_keyword_count",
+    "context_alert_count",
+    "required_source_count",
+    "usable_required_source_count",
+    "event_count",
+    "mention_count",
+    "material_conflict_events",
+    "hours_since_latest_run",
+    "fetched_rows",
+    "previous_accepted_rows",
+}
+
+
+def _column_type(column: str) -> str:
+    if column in _INTEGER_COLUMNS:
+        return "integer"
+    if (
+        column.endswith("_share")
+        or column.startswith("gdelt_avg_")
+        or column.endswith("_ratio")
+    ):
+        return "double"
+    if (
+        column.startswith("is_")
+        or column.startswith("has_")
+        or column.startswith("all_")
+        or column.endswith("_usable")
+        or column == "gdelt_is_fresh"
+    ):
+        return "boolean"
+    return "varchar"
+
+
+def _row_values(columns: list[str]) -> list[object]:
+    values: list[object] = []
+    for column in columns:
+        col_type = _column_type(column)
+        if column == "gdelt_event_count_1d":
+            values.append(1)
+        elif column == "gdelt_event_count_7d":
+            values.append(7)
+        elif col_type == "integer":
+            values.append(1)
+        elif col_type == "double":
+            values.append(0.1)
+        elif col_type == "boolean":
+            values.append(True)
+        else:
+            values.append("x")
+    return values
+
+
+def _create_contract_mart(conn, mart: str, *, insert_row: bool) -> None:
+    columns = PUBLIC_MART_COLUMNS[mart]
+    column_sql = ", ".join(f'"{column}" {_column_type(column)}' for column in columns)
+    conn.execute(f"create table travelcanary_marts.{mart} ({column_sql})")
+    if insert_row:
+        placeholders = ", ".join("?" for _ in columns)
+        quoted = ", ".join(f'"{column}"' for column in columns)
+        conn.execute(
+            f"insert into travelcanary_marts.{mart} ({quoted}) values ({placeholders})",
+            _row_values(columns),
+        )
 
 
 def _seed_validator_relations(conn):
@@ -30,33 +113,9 @@ def _seed_validator_relations(conn):
         )
 
     conn.execute("create schema if not exists travelcanary_marts")
-    conn.execute("create table travelcanary_marts.country_travel_risk (id integer)")
-    conn.execute("insert into travelcanary_marts.country_travel_risk values (1)")
-    conn.execute(
-        """
-        create table travelcanary_marts.country_risk_signals (
-            gdelt_event_count_1d integer,
-            gdelt_event_count_7d integer
-        )
-        """
-    )
-    conn.execute("insert into travelcanary_marts.country_risk_signals values (1, 7)")
-    conn.execute("create table travelcanary_marts.country_risk_overview (id integer)")
-    conn.execute("insert into travelcanary_marts.country_risk_overview values (1)")
-    conn.execute(
-        "create table travelcanary_marts.country_advisory_changes (id integer)"
-    )
-    conn.execute("insert into travelcanary_marts.country_advisory_changes values (1)")
-    conn.execute("create table travelcanary_marts.country_risk_trends (id integer)")
-    conn.execute("insert into travelcanary_marts.country_risk_trends values (1)")
-    conn.execute("create table travelcanary_marts.country_advisory_themes (id integer)")
-    conn.execute(
-        "create table travelcanary_marts.country_gdelt_event_types (id integer)"
-    )
-    conn.execute("insert into travelcanary_marts.country_gdelt_event_types values (1)")
-    conn.execute("create table travelcanary_marts.country_context_alerts (id integer)")
-    conn.execute("create table travelcanary_marts.source_data_quality (id integer)")
-    conn.execute("insert into travelcanary_marts.source_data_quality values (1)")
+    nonempty = set(LIVE_NONEMPTY_PUBLIC_MARTS)
+    for mart in LIVE_PUBLIC_MARTS:
+        _create_contract_mart(conn, mart, insert_row=mart in nonempty)
 
     conn.execute("create schema if not exists travelcanary_observability")
     conn.execute(
@@ -85,6 +144,20 @@ def test_validate_live_warehouse_accepts_seeded_ready_warehouse():
         assert result["required_accepted_sources"] >= 1
         assert result["public_marts_checked"] == 9
         assert result["gdelt_context_rows"] == 1
+    finally:
+        conn.close()
+
+
+def test_validate_live_warehouse_rejects_column_drift():
+    conn = get_persistent_connection()
+    try:
+        _seed_validator_relations(conn)
+        conn.execute("drop table travelcanary_marts.country_travel_risk")
+        conn.execute("create table travelcanary_marts.country_travel_risk (id integer)")
+        conn.execute("insert into travelcanary_marts.country_travel_risk values (1)")
+
+        with pytest.raises(LiveWarehouseValidationError, match="columns drifted"):
+            validate_live_warehouse(conn)
     finally:
         conn.close()
 

@@ -27,7 +27,10 @@ def resolve_duckdb_path() -> Path:
     path_value = _optional_env_str("DUCKDB_PATH")
     name_value = _optional_env_str("DUCKDB_NAME") or _DEFAULT_DUCKDB_NAME
     if path_value:
-        path = Path(path_value).expanduser().resolve()
+        path_path = Path(path_value).expanduser()
+        path = (
+            path_path if path_path.is_absolute() else BASE_DIR / path_path
+        ).resolve()
     else:
         name_path = Path(name_value).expanduser()
         path = (

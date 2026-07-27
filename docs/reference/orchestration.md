@@ -29,7 +29,10 @@ same DuckDB file. The configured local queued run coordinator permits one
 active run. A sibling advisory lock (`<warehouse>.writer.lock`) also
 serializes every supported ingestion, seed, and dbt writer across processes,
 including direct Make commands. Supported writers acquire the lock without
-waiting; overlapping writers fail with the active warehouse path.
+waiting; overlapping writers fail with the active warehouse path. Atomic dbt
+publish still needs exclusive DuckDB access during checkpoint and candidate
+copy: close notebooks, `duckdb` UI, and other `read_only` sessions before
+`make dbt-build` or the Dagster dbt asset runs.
 
 ## Schedule
 

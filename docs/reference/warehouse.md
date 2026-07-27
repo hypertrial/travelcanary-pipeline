@@ -42,7 +42,7 @@ for a later retry. The next build removes stale managed candidate artifacts.
 | `source_data_quality` | source | Consumer-facing source health, freshness, and completeness |
 
 There is no automatic migration layer. Use `make export-history` /
-`make import-history` to preserve `country_travel_risk_history` across a
+`make import-history HISTORY_PATH=...` to preserve `country_travel_risk_history` across a
 clean rebuild, then rebuild dbt so change and trend marts regenerate.
 
 ## Retention

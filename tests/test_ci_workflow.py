@@ -44,7 +44,7 @@ def test_docs_workflow_publishes_on_main_tags_and_dispatch():
         == "startsWith(github.ref, 'refs/tags/v')"
     )
     assert "make demo" in workflow_text
-    assert "export-marts" in workflow_text
+    assert "export-demo-marts" in workflow_text
     assert "gh release upload" in workflow_text
     assert "live-smoke" not in workflow_text
     assert "source-audit" not in workflow_text

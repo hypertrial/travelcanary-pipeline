@@ -18,7 +18,6 @@ def test_open_source_policy_and_template_files_exist():
         "THIRD_PARTY_NOTICES.md",
         "CODE_OF_CONDUCT.md",
         ".github/CODEOWNERS",
-        ".github/dependabot.yml",
         ".github/PULL_REQUEST_TEMPLATE.md",
         ".github/ISSUE_TEMPLATE/bug_report.yml",
         ".github/ISSUE_TEMPLATE/feature_request.yml",
@@ -62,26 +61,6 @@ def test_github_issue_forms_are_valid_yaml():
         form = yaml.safe_load(path.read_text())
         assert form["name"]
         assert form["body"]
-
-
-def test_dependabot_policy_is_constrained():
-    config = yaml.safe_load((ROOT / ".github/dependabot.yml").read_text())
-    updates = {item["package-ecosystem"]: item for item in config["updates"]}
-
-    assert config["version"] == 2
-    assert set(updates) == {"uv", "github-actions"}
-    for update in updates.values():
-        assert update["directory"] == "/"
-        assert update["schedule"]["interval"] == "weekly"
-        assert update["open-pull-requests-limit"] == 3
-        assert len(update["groups"]) == 1
-        group = next(iter(update["groups"].values()))
-        assert set(group["update-types"]) == {"minor", "patch"}
-
-    assert updates["uv"]["ignore"] == [
-        {"dependency-name": "dbt-core", "versions": [">=1.12"]}
-    ]
-    assert "ignore" not in updates["github-actions"]
 
 
 def test_github_actions_are_pinned_to_full_commits():

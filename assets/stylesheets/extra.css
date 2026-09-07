@@ -1,0 +1,171 @@
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/inter-latin-variable.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  src: url("../fonts/jetbrains-mono-latin-variable.woff2") format("woff2");
+}
+
+:root {
+  --tc-ink: #041816;
+  --tc-surface: #0d2421;
+  --tc-surface-raised: #14332e;
+  --tc-teal: #2dd4bf;
+  --tc-amber: #fbbf24;
+  --md-text-font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --md-code-font: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+[data-md-color-scheme="slate"] {
+  color-scheme: dark;
+  --md-hue: 170;
+  --md-default-bg-color: #0b1c1a;
+  --md-default-fg-color: #e2e8f0;
+  --md-default-fg-color--light: #cbd5e1;
+  --md-default-fg-color--lighter: #94a3b8;
+  --md-default-fg-color--lightest: #334155;
+  --md-primary-fg-color: var(--tc-ink);
+  --md-primary-bg-color: #f8fafc;
+  --md-accent-fg-color: var(--tc-teal);
+  --md-accent-fg-color--transparent: rgb(45 212 191 / 12%);
+  --md-typeset-a-color: var(--tc-teal);
+  --md-code-bg-color: var(--tc-ink);
+  --md-code-fg-color: #e2e8f0;
+  --md-footer-bg-color: var(--tc-ink);
+  --md-footer-bg-color--dark: #020a09;
+}
+
+.md-header__title { font-weight: 700; }
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.md-typeset .md-button {
+  color: var(--tc-teal);
+  border-color: var(--tc-teal);
+}
+
+.md-typeset .md-button:hover,
+.md-typeset .md-button:focus {
+  color: var(--tc-ink);
+  background: var(--tc-teal);
+  border-color: var(--tc-teal);
+}
+
+.md-typeset .md-button--primary {
+  color: var(--tc-ink);
+  background: var(--tc-teal);
+  border-color: var(--tc-teal);
+}
+
+.md-typeset .md-button--primary:hover,
+.md-typeset .md-button--primary:focus {
+  color: var(--tc-ink);
+  background: #5eead4;
+  border-color: #5eead4;
+}
+
+.tc-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(14rem, 0.65fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.tc-hero__copy { max-width: 43rem; }
+
+.md-typeset .tc-hero h1 {
+  margin: 0.3rem 0 0.75rem;
+  font-size: clamp(3rem, 7vw, 4rem);
+  line-height: 1;
+}
+
+.tc-eyebrow {
+  color: var(--md-accent-fg-color);
+  font-family: var(--md-code-font-family);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tc-hero .md-button {
+  margin-top: 0.75rem;
+  margin-right: 0.4rem;
+}
+
+.tc-hero__mark {
+  display: grid;
+  min-height: 13rem;
+  place-items: center;
+  padding: 1rem;
+  background: #031412;
+  border: 0.05rem solid var(--md-default-fg-color--lightest);
+  border-radius: 1rem;
+  color: #f8fafc;
+  font-family: var(--md-code-font-family);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  gap: 0.4rem;
+}
+
+.tc-install {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.45fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  background: var(--tc-surface);
+  border: 0.05rem solid var(--md-default-fg-color--lightest);
+  border-radius: 0.6rem;
+}
+
+.tc-install > p,
+.tc-install > .highlight,
+.tc-install > pre { margin: 0; }
+
+.tc-task-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.tc-task-card {
+  padding: 1.2rem;
+  background: var(--tc-surface-raised);
+  border: 0.05rem solid var(--md-default-fg-color--lightest);
+  border-radius: 0.6rem;
+}
+
+.tc-task-card h3 { margin-top: 0; }
+
+.tc-task-card p:last-child {
+  margin-bottom: 0;
+  font-weight: 650;
+}
+
+@media screen and (max-width: 60em) {
+  .tc-hero { grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.45fr); }
+  .tc-task-grid { grid-template-columns: 1fr; }
+}
+
+@media screen and (max-width: 44.984375em) {
+  .tc-hero { grid-template-columns: 1fr; }
+  .tc-hero__mark { display: none; }
+  .tc-install { grid-template-columns: 1fr; }
+}
